@@ -17,12 +17,12 @@ end_hour=18 # end hour in two-digit: HH
 
 intervals=6 # in hours
 
-imdaa_data_path=/home/workstation11/test/imdaadata		                        # here kept all downloaded IMDAA data
-wps_path=/home/workstation11/model/WPS-4.4 			                              # This is where you have installed the WPS package
-wps_geog_path=/home/workstation11/WPS_GEOG 			                              # downloaded static data WPS_GEOG path
-ncum_Vtable_path=/home/workstation11/test/gitdownload/Vtable.NCUM 		        # downloaded Vtable.NCUM kept in this path
-ncum_metgrid_tbl_path=/home/workstation11/test/gitdownload/METGRID.TBL_NCUM 	# downloaded METGRID.TBL_NCUM kept in this path
-wps_namelist_path=/home/workstation11/test/myfile 		                        # Original namelist.wps kept in this folder so that it stays untouched
+imdaa_data_path=/home/workstation11/test/imdaadata    # here kept all downloaded IMDAA data
+wps_path=/home/workstation11/model/WPS-4.4    # This is where you have installed the WPS package
+wps_geog_path=/home/workstation11/WPS_GEOG    # downloaded static data WPS_GEOG path
+ncum_Vtable_path=/home/workstation11/test/gitdownload/Vtable.NCUM    # downloaded Vtable.NCUM kept in this path
+ncum_metgrid_tbl_path=/home/workstation11/test/gitdownload/METGRID.TBL_NCUM    # downloaded METGRID.TBL_NCUM kept in this path
+wps_namelist_path=/home/workstation11/test/myfile    # Original namelist.wps kept in this folder so that it stays untouched
 
 nproc=16 # number of processors if opt for parallel run
 
