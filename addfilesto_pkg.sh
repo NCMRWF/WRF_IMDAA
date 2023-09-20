@@ -9,8 +9,11 @@ UTFList=$(git ls-files --others --exclude-standard)
 for utf in ${UTFList}; do
 echo ${utf}
 done
-cd ${GITROOT}; git add ${UTFList} ; git status
+cd ${GITROOT}; 
+git pull
+git add ${UTFList} 
 git commit -a -m "Add files ${UTFList}"
 git push
+git status
 
 
