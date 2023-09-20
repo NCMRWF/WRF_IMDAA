@@ -1,0 +1,10 @@
+
+setenvscript="/home/gibies/Build_WRF/set_env.sh"
+RUNDIR="/home/gibies/Build_WRF/test_run/run_${syyyy}${smm}${start_date}_${start_hour}"
+imdaa_data_path=/home/${USER}/Build_WRF/test_run/imdaa/20200101	# here kept all downloaded IMDAA data
+wps_path=/home/${USER}/Build_WRF/WPS-4.5
+wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
+#ncum_Vtable_path=/home/gibies/Build_WRF/test_run/run
+#ncum_metgrid_tbl_path=/home/gibies/Build_WRF/test_run/run
+wps_namelist_path=/home/gibies/Build_WRF/test_run/run/namelist.wps	# Original namelist.wps kept in this folder so that it stays untouched
+nproc=1 # number of processors if opt for parallel run
