@@ -1,4 +1,8 @@
 #!/bin/bash
+SELF=$(realpath ${0})
+export HOMEDIR=${SELF%/jobs*}
+export JOBSDIR=${HOMEDIR}/jobs
+export NMLDIR=${HOMEDIR}/nml
 #----------------------------------------------------------------------------------------------------------------
 # The purpose of this script is to produce metgrid output files in user-defined intervals from IMDAA data. 	|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	|
@@ -78,6 +82,37 @@
 # Version : 18-Sep-2023												|
 #----------------------------------------------------------------------------------------------------------------
 
+###########################################################################################
+helpdesk()
+{
+echo -e "Usage: \n $0"
+                        echo "options:"
+			echo "-h	--help		Help"
+			echo "-m	--msg		Short Message for git commit"
+			echo "-r	--runid		Run Name"
+                        exit 0
+}
+###########################################################################################
+options()
+{
+while test $# -gt 0; do
+        case "$1" in
+                -h|--help) 	helpdesk;;
+		-m|--msg)	shift; MSGKEY=$1; shift;;
+		-r|--runid)	shift; RUN_NAME=$1; shift;;
+		*)		shift;;
+	esac
+done
+}
+###########################################################################################
+options $(echo $@  | tr "=" " ")
+###########################################################################################
+
+nmlfile=${NMLDIR}/${RUN_NAME}_keys.nml
+
+cat ${nmlfile}
+
+exit
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 # 											    						|
