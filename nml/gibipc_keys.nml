@@ -10,17 +10,17 @@
 #----------------------------------------------------------------------------------------------------------------------------------------
 
 setenvscript=/home/gibies/Build_WRF/set_env.sh
-RUNDIR=/home/gibies/Build_WRF/test_run_sample
+RUNDIR=/home/gibies/Build_WRF/test_run_20150101
 # here kept all downloaded IMDAA data
-imdaa_data_path=/home/gibies/imdaa/20200101
+imdaa_data_path=/home/gibies/imdaa/20150101
 # This is where you have installed the WPS package
 wps_path=/home/gibies/Build_WRF/WPS-4.5
 # static data WPS_GEOG path
 wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
 
 # set false if you do not want to repeat the processes
-SORT_IMDAA=false
-RUN_GEOGRID=false
+SORT_IMDAA=true
+RUN_GEOGRID=true
 RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
