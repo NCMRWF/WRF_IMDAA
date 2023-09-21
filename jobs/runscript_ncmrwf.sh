@@ -36,7 +36,7 @@ runkeynml=${NMLDIR}/${RUN_NAME}_keys.nml
 keylist=$(grep -v '^#' ${runkeynml} | tr '=' ' ' | awk '{print $1}')
 
 for key in ${keylist}; do
-	export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | tr '(' ' ' | tr ')' ' ' | cut -d " " -f 2- )"
+	export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | cut -d " " -f 2- )"
 echo ${key}="${!key}"
 done
 
@@ -1714,7 +1714,10 @@ EOF
 
 all_non_zero=true
 rm .z
-for file in "${parameters[@]}"; do
+echo $parameters
+echo ${parameters[@]}
+for file in ${parameters}; do
+	echo ${file}
 	for hour in $(eval echo "{00..23..$(( $interval_seconds / 3600 ))}")
         do
         	ss=("$file":"$Start_year"-"$Start_month"-"$Start_date"_"$hour")
