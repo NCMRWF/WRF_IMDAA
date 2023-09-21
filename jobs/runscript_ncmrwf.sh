@@ -36,7 +36,7 @@ runkeynml=${NMLDIR}/${RUN_NAME}_keys.nml
 keylist=$(grep -v '^#' ${runkeynml} | tr '=' ' ' | awk '{print $1}')
 
 for key in ${keylist}; do
-export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | cut -d " " -f 2- )"
+	export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | tr '(' ' ' | tr ')' ' ' | cut -d " " -f 2- )"
 echo ${key}="${!key}"
 done
 
