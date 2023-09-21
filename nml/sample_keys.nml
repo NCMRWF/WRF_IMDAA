@@ -25,9 +25,11 @@ RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
 nproc=1 
+
+#
+max_dom=1
 # Intervels in seconds
 interval_seconds=10800
-
 
 # IMDAA parameter names. Do not change unless you are getting any instruction after an unsuccessful Metgrid run
 parameters=(UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m CISOILM-L1 CISOILM-L2 CISOILM-L3 CISOILM-L4 WEASD-sfc)

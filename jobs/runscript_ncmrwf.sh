@@ -64,13 +64,14 @@ End_month=$(date -d "${ENDDATETIME}" +%m)
 End_date=$(date -d "${ENDDATETIME}" +%d)
 End_hour=$(date -d "${ENDDATETIME}" +%H)
 
+set -x
 sed -i "s+interval_seconds.*+ interval_seconds = ${interval_seconds},+" ${wps_namelist}
 grep -ir "interval_seconds" ${wps_namelist}
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------------
-# The purpose of this script is to produce metgrid output files in user-defined intervals from IMDAA data. 	|
+# The purpose of this script is to produce metgrid output files in user-defined interval_seconds from IMDAA data. 	|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	|
 # pressure, 2-meter  Relative humidity, 2-meter temperature, etc. Thereafter METGRID will be performed by taking|
 # these different parameters together. The script follows GRIB parameter identities for the NCMRWF Unified Model|
@@ -1453,7 +1454,7 @@ else
   exit 1
 fi
 
-if [ $Linterval -eq $intervals ]; then
+if [ $Linterval -eq $interval_seconds ]; then
   echo -e "\n ${BGreen}Data interval is similar. ${WHITE}
 
   Proceeding ... 
@@ -1467,7 +1468,7 @@ else
   \n 
   ${BRed}Mismatch between entered interval and namelist.wps interval. Please correct it and re-run the script${WHITE}
 
-  	Script interval: $intervals
+  	Script interval: $interval_seconds
   	Namelist interval: $Linterval
   
   ${BRed}Exiting ...${WHITE} \n"
@@ -1532,7 +1533,7 @@ if $SORT_IMDAA; then
                 	        exit 1
 	                fi
         	done
-	current_timestamp=$((current_timestamp + intervals))
+	current_timestamp=$((current_timestamp + interval_seconds))
 	done
 fi
 #---------------------------------------------- geogrid section ------------------------------------------------------
@@ -1714,7 +1715,7 @@ EOF
 all_non_zero=true
 rm .z
 for file in "${parameters[@]}"; do
-	for hour in $(eval echo "{00..23..$(( $intervals / 3600 ))}")
+	for hour in $(eval echo "{00..23..$(( $interval_seconds / 3600 ))}")
         do
         	ss=("$file":"$Start_year"-"$Start_month"-"$Start_date"_"$hour")
                 if [ -e "$ss" ]; then
