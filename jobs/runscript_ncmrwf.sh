@@ -64,6 +64,9 @@ End_month=$(date -d "${ENDDATETIME}" +%m)
 End_date=$(date -d "${ENDDATETIME}" +%d)
 End_hour=$(date -d "${ENDDATETIME}" +%H)
 
+sed -i "s+interval_seconds.*+ interval_seconds = ${interval_seconds},+" ${wps_namelist}
+grep -ir "interval_seconds" ${wps_namelist}
+
 #----------------------------------------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------------

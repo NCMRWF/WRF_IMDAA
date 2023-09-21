@@ -9,39 +9,14 @@
 # 																	|
 #----------------------------------------------------------------------------------------------------------------------------------------
 
-# start year in four-digit: yyyy
-Start_year=2023    
-# end year in four-digit: yyyy
-End_year=2023      
-
-# start month in two-digit: mm
-Start_month=09 
-# end month in two-digit: mm
-End_month=09   
-
-# start date in two-digit: dd
-Start_date=19   
-# start hour in two-digit: HH
-Start_hour=00   
-
-# end date in two-digit: dd
-End_date=20     
-# end hour in two-digit: HH
-End_hour=00     
-
-# Intervels in seconds
-intervals=10800	
-
 setenvscript=/home/gibies/Build_WRF/set_env.sh
-RUNDIR="/home/gibies/Build_WRF/test_run/run_${syyyy}${smm}${start_date}_${start_hour}"
+RUNDIR=/home/gibies/Build_WRF/test_run_sample
 # here kept all downloaded IMDAA data
-imdaa_data_path="/home/${USER}/Build_WRF/test_run/imdaa/20200101"	"
+imdaa_data_path=/home/gibies/Build_WRF/test_run/imdaa/20200101
 # This is where you have installed the WPS package
-wps_path="/home/${USER}/Build_WRF/WPS-4.5"
+wps_path=/home/gibies/Build_WRF/WPS-4.5
 # static data WPS_GEOG path
-wps_geog_path="/home/gibies/Build_WRF/WPS_GEOG"
-# Original namelist.wps kept in this folder so that it stays untouched
-wps_namelist_path="/home/gibies/Build_WRF/test_run/run/namelist.wps"
+wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
 
 # set false if you do not want to repeat the processes
 SORT_IMDAA=true
@@ -50,6 +25,9 @@ RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
 nproc=1 
+# Intervels in seconds
+interval_seconds=10800
+
 
 # IMDAA parameter names. Do not change unless you are getting any instruction after an unsuccessful Metgrid run
 parameters=(UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m CISOILM-L1 CISOILM-L2 CISOILM-L3 CISOILM-L4 WEASD-sfc)
