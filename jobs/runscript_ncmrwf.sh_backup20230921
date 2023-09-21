@@ -3,69 +3,6 @@ SELF=$(realpath ${0})
 export HOMEDIR=${SELF%/jobs*}
 export JOBSDIR=${HOMEDIR}/jobs
 export NMLDIR=${HOMEDIR}/nml
-
-###########################################################################################
-helpdesk()
-{
-echo -e "Usage: \n $0"
-                        echo "options:"
-			echo "-h	--help		Help"
-			echo "-m	--msg		Short Message for git commit"
-			echo "-r	--runid		Run Name"
-                        exit 0
-}
-###########################################################################################
-options()
-{
-while test $# -gt 0; do
-        case "$1" in
-		-d|--date)	shift; DATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
-		-e|--enddate)	shift; ENDDATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
-                -h|--help) 	helpdesk;;
-		-m|--msg)	shift; MSGKEY=$1; shift;;
-		-r|--runid)	shift; RUN_NAME=$1; shift;;
-		*)		shift;;
-	esac
-done
-}
-###########################################################################################
-options $(echo $@  | tr "=" " ")
-###########################################################################################
-if [ -z ${RUN_NAME} ] ; then export RUN_NAME="sample" ; fi
-runkeynml=${NMLDIR}/${RUN_NAME}_keys.nml
-keylist=$(grep -v '^#' ${runkeynml} | tr '=' ' ' | awk '{print $1}')
-
-for key in ${keylist}; do
-export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | cut -d " " -f 2- )"
-echo ${key}="${!key}"
-done
-
-if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
-cd ${RUNDIR}
-source ${setenvscript}
-
-cp -r ${NMLDIR}/namelist.wps ${RUNDIR}/namelist.wps
-
-export wps_namelist=${RUNDIR}/namelist.wps
-
-export start_date=$(date -d "${DATETIME}" +%Y-%m-%d_%H:%M:%S)
-sed -i "s+start_date.*+ start_date = '${start_date}',+" ${wps_namelist}
-grep "start_date" ${wps_namelist}
-Start_year=$(date -d "${DATETIME}" +%Y)   
-Start_month=$(date -d "${DATETIME}" +%m)
-Start_date=$(date -d "${DATETIME}" +%d)
-Start_hour=$(date -d "${DATETIME}" +%H)
-
-export end_date=$(date -d "${ENDDATETIME}" +%Y-%m-%d_%H:%M:%S)
-sed -i "s+end_date.*+ end_date   = '${end_date}',+" ${wps_namelist}
-grep "end_date" ${wps_namelist}
-End_year=$(date -d "${ENDDATETIME}" +%Y)
-End_month=$(date -d "${ENDDATETIME}" +%m)
-End_date=$(date -d "${ENDDATETIME}" +%d)
-End_hour=$(date -d "${ENDDATETIME}" +%H)
-
-#----------------------------------------------------------------------------------------------------------------------------------------
-
 #----------------------------------------------------------------------------------------------------------------
 # The purpose of this script is to produce metgrid output files in user-defined intervals from IMDAA data. 	|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	|
@@ -124,7 +61,7 @@ End_hour=$(date -d "${ENDDATETIME}" +%H)
 # USAGE:													|
 #														|
 # (1) Create a folder in your preferred location and keep this script. Nothing else needs to be kept in this 	|
-#     directory.												|
+#     directory.													|
 # (2) Give the path (in the user input section) where you have kept namelist.wps (preferably in a different 	|
 #     location).												|
 # (3) Download IMDAA data and keep all (single level and pressure level) in one directory. Then give this	| 
@@ -142,36 +79,100 @@ End_hour=$(date -d "${ENDDATETIME}" +%H)
 # prior to running this script.											|
 #														|
 # Author : Vivekananda Hazra (vhazra@ncmrwf.gov.in)								|
-# Version : 20-Sep-2023												|
+# Version : 18-Sep-2023												|
 #----------------------------------------------------------------------------------------------------------------
 
+###########################################################################################
+helpdesk()
+{
+echo -e "Usage: \n $0"
+                        echo "options:"
+			echo "-h	--help		Help"
+			echo "-m	--msg		Short Message for git commit"
+			echo "-r	--runid		Run Name"
+                        exit 0
+}
+###########################################################################################
+options()
+{
+while test $# -gt 0; do
+        case "$1" in
+                -h|--help) 	helpdesk;;
+		-m|--msg)	shift; MSGKEY=$1; shift;;
+		-r|--runid)	shift; RUN_NAME=$1; shift;;
+		*)		shift;;
+	esac
+done
+}
+###########################################################################################
+options $(echo $@  | tr "=" " ")
+###########################################################################################
+
+nmlfile=${NMLDIR}/${RUN_NAME}_keys.nml
+
+cat ${nmlfile}
+
+exit
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+# 											    						|
+#                                                          USER INPUT BEGIN HERE                                       			|
+# 																	|
+#			(1) Fill in YEAR, MONTH, DATE, HOURS, and INTERVAL below as per the Namelist options.				|
+#			(2) Provide only relevant paths in the path options.								|
+#			(3) Provide the number of processors if opting for parallel.							|
+#			(4) Do not change parameter names unless directed by this script.						|
+# 																	|
+#----------------------------------------------------------------------------------------------------------------------------------------
+
+syyyy=2020 	# start year in four-digit: yyyy
+eyyyy=2020 	# end year in four-digit: yyyy
+
+smm=01 		# start month in two-digit: mm 
+emm=01 		# end month in two-digit: mm 
+
+start_date=01 	# start date in two-digit: dd
+start_hour=00 	# start hour in two-digit: HH
+
+end_date=01 	# end date in two-digit: dd
+end_hour=18 	# end hour in two-digit: HH
+
+intervals=6 	# in hours
+
+setenvscript="/home/gibies/Build_WRF/set_env.sh"
+RUNDIR="/home/gibies/Build_WRF/test_run/run_${syyyy}${smm}${start_date}_${start_hour}"
+imdaa_data_path=/home/${USER}/Build_WRF/test_run/imdaa/20200101	# here kept all downloaded IMDAA data
+wps_path=/home/${USER}/Build_WRF/WPS-4.5
+wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
+#ncum_Vtable_path=/home/gibies/Build_WRF/test_run/run
+#ncum_metgrid_tbl_path=/home/gibies/Build_WRF/test_run/run
+wps_namelist_path=/home/gibies/Build_WRF/test_run/run/namelist.wps	# Original namelist.wps kept in this folder so that it stays untouched
+nproc=1 # number of processors if opt for parallel run
+
+# IMDAA parameter names. Do not change unless you are getting any instruction after an unsuccessful Metgrid run
+export parameters=(UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m CISOILM-L1 CISOILM-L2 CISOILM-L3 CISOILM-L4 WEASD-sfc)
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+#																	|
+#                         END USER INPUT. ******  DO NOT CHANGE BELOW ******								|
+# 																	|
+#----------------------------------------------------------------------------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------
 set -x
 ulimit -s unlimited
+if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
+cd ${RUNDIR}
 currdir=`pwd`
 
-start_date="${Start_year}-${Start_month}-${Start_date} ${Start_hour}:00:00"
-end_date="${End_year}-${End_month}-${End_date} ${End_hour}:00:00"
-start_timestamp=$(date -d "$start_date" +%s)
-end_timestamp=$(date -d "$end_date" +%s)
-current_timestamp="$start_timestamp"
+source ${setenvscript}
+
 BLUE='\033[0;34m'
 WHITE='\033[0;37m'
 RED='\033[0;31m'
 BRed='\033[1;31m'
 BGreen='\033[1;32m'
-
-
-if [[ ( "$start_timestamp" -ge "$end_timestamp" ) ]]
-then
-        echo -e "\n
-        \n
-        ${RED}
-        Simulation start time can not be higher than end time ${WHITE} ...
-
-        Please check the simulation date correctly.
-        \n"
-        exit 1
-fi
 
 cat > METGRID.TBL << EOF
 ========================================
@@ -1149,7 +1150,7 @@ else
 fi
 
 # checking for the existence of Namelist
-FILE=$wps_namelist
+FILE=$wps_namelist_path
 if [ ! -f $FILE ]
 then
     echo -e "\n ${BRed}namelist.wps does not exist.${WHITE} \n"
@@ -1169,10 +1170,8 @@ then
     \n"
     exit 1
 else
-	if $RUN_UNGRIB; then
-		cp -rf $FILE namelist.wps.original
-		cp -rf $FILE namelist.wps
-	fi
+	cp -rf $FILE namelist.wps.original
+	cp -rf $FILE namelist.wps
 fi
 
 # checking for the existence of static data
@@ -1289,7 +1288,7 @@ eLmm=`cut -d "=" -f2 <<< $checkmatchend|grep -o " '.*"|cut -c8-9`
 eLdd=`cut -d "=" -f2 <<< $checkmatchend|grep -o " '.*"|cut -c11-12`
 eLHH=`cut -d "=" -f2 <<< $checkmatchend|grep -o " '.*"|cut -c14-15`
 
-if [ "$sLyyyy" -eq $Start_year ]; then
+if [ "$sLyyyy" -eq $syyyy ]; then
   echo -e "\n 
   ${BGreen}Simulation start year is similar. ${WHITE}
 
@@ -1304,13 +1303,13 @@ else
   ${BRed}Mismatch between the entered year and the namelist.wps start year. Please correct it and re-run the script.${WHITE}
 
   Namelist start year: $sLyyyy
-  Script start year: $Start_year
+  Script start year: $syyyy
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$sLmm" -eq $Start_month ]; then
+if [ "$sLmm" -eq $smm ]; then
   echo -e "\n ${BGreen}Simulation start month is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1324,13 +1323,13 @@ else
   ${BRed}Mismatch between entered month and namelist.wps start month. Please correct it and re-run the script.${WHITE}
 
   Namelist start month: $sLmm
-  Script start month: $Start_month
+  Script start month: $smm
 
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$sLdd" -eq $Start_date ]; then
+if [ "$sLdd" -eq $start_date ]; then
   echo -e "\n ${BGreen}Simulation start date is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1344,13 +1343,13 @@ else
   ${BRed}Mismatch between entered start date and namelist.wps start date. Please correct it and re-run the script.${WHITE}
 
   Namelist start date: $sLdd
-  Script start date: $Start_date
+  Script start date: $start_date
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$sLHH" -eq $Start_hour ]; then
+if [ "$sLHH" -eq $start_hour ]; then
   echo -e "\n ${BGreen}Simulation start hour is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1364,13 +1363,13 @@ else
   ${BRed}Mismatch between entered start hour and namelist.wps start hour. Please correct it and re-run the script.${WHITE}
 
   Namelist start hour: $sLHH
-  Script start hour: $Start_hour
+  Script start hour: $start_hour
 
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$eLyyyy" -eq $End_year ]; then
+if [ "$eLyyyy" -eq $eyyyy ]; then
   echo -e "\n ${BGreen}Simulation end year is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1384,13 +1383,13 @@ else
   ${BRed}Mismatch between entered end year and namelist.wps end year. Please correct it and re-run the script.${WHITE}
 
   Namelist end year: $eLyyyy
-  Script end year: $End_year
+  Script end year: $eyyyy
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$eLmm" -eq $End_month ]; then
+if [ "$eLmm" -eq $emm ]; then
   echo -e "\n ${BGreen}Simulation end month is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1404,13 +1403,13 @@ else
   ${BRed}Misimatch between entered end month and namelist.wps end month. Please correct it and re-run the script.${WHITE}
 
   Namelist end month: $eLmm
-  Script end month: $End_month
+  Script end month: $emm
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$eLdd" -eq $End_date ]; then
+if [ "$eLdd" -eq $end_date ]; then
   echo -e "\n ${BGreen}Simulation end date is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1424,13 +1423,13 @@ else
   ${BRed}Mismatch between entered end date and namelist.wps end date. Please correct it and re-run the script.${WHITE}
 
   Namelist end date: $eLdd
-  Script end date: $End_date
+  Script end date: $end_date
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ "$eLHH" -eq $End_hour ]; then
+if [ "$eLHH" -eq $end_hour ]; then
   echo -e "\n ${BGreen}Simulation end hour is similar. ${WHITE}
 
   Proceeding ... \n"
@@ -1444,13 +1443,13 @@ else
   ${BRed}Mismatch between entered end hour and namelist.wps end hour. Please correct it and re-run the script.${WHITE}
 
   Namelist end hour: $sLHH
-  Script end hour: $End_hour
+  Script end hour: $end_hour
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
-if [ $Linterval -eq $intervals ]; then
+if [ "$(($Linterval/3600))" -eq $intervals ]; then
   echo -e "\n ${BGreen}Data interval is similar. ${WHITE}
 
   Proceeding ... 
@@ -1464,229 +1463,235 @@ else
   \n 
   ${BRed}Mismatch between entered interval and namelist.wps interval. Please correct it and re-run the script${WHITE}
 
-  	Script interval: $intervals
+  	Script interval: "$((intervals*3600))"
   	Namelist interval: $Linterval
   
   ${BRed}Exiting ...${WHITE} \n"
   exit 1
 fi
 
+sed -i 's/fg_name.*/fg_name =/g' namelist.wps
 ln -sf ${wps_path}/*.exe .
 ln -sf ${wps_path}/geogrid/GEOGRID.TBL.ARW GEOGRID.TBL 
+rm -rf $currdir/rundata
+mkdir $currdir/rundata
 #-------------------------------- sorting imdaa data ---------------------------------------------------
-if $SORT_IMDAA; then
-	echo -e "\n
-	You have opted to sort IMDAA data.
+for ((iyy=${syyyy#0} ; iyy <= ${eyyyy#0} ; iyy=iyy+1))  
+do
+	for ((imm=${smm#0} ; imm <= ${emm#0} ; imm=imm+1))
+	do
+		for ((ig=${start_date#0} ; ig <= ${end_date#0} ; ig=ig+1))  
+		do
+			echo $ig
+			for param in ${parameters[@]}
+			do
+				subset="${param}"
+				echo -e "\n
+					Extracting ${BGreen}$subset${WHITE} from IMDAA ...
+					\n"
+					sleep 1
+		        	found_file=$(find "$imdaa_data_path" -type f -name "*_${subset}_*")
+				if [ -e "$found_file" ]; then
+					for hour in $(eval echo "{$start_hour..$end_hour..$intervals}")
+	        			do 
+						if [[ ( "$imm" -lt 10 && "$ig" -lt 10 ) ]]
+						then
+							date=${iyy}0${imm}0${ig}
+					       	        rundate=${date}${hour}
+        			        		echo "$date of $hour"
+					                echo $rundate
+			        		        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${date}_${hour}.grib2
+						elif [[ ( "$imm" -lt 10 && "$ig" -ge 10 ) ]]
+						then
+                			       		date=${iyy}0${imm}${ig}
+				                        rundate=${date}${hour}
+                				        echo "$date of $hour"
+		                	        	echo $rundate
+					                wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${date}_${hour}.grib2
+						elif [[ ( "$imm" -ge 10 && "$ig" -lt 10 ) ]]
+						then
+		        		      		date=${iyy}${imm}0${ig}
+	        		               		rundate=${date}${hour}
+			        	                echo "$date of $hour"
+		                		        echo $rundate
+                				        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${date}_${hour}.grib2
+						elif [[ ( "$imm" -ge 10 && "$ig" -ge 10 ) ]]
+						then
+		        				date=${iyy}${mm}${ig}
+			       			        rundate=${date}${hour}
+					                echo "$date of $hour"
+                					echo $rundate
+			        		        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${date}_${hour}.grib2
+						fi
+					done
+				else
+				echo -e "\n
+  				\n 
+  				\n 
+  				\n 
+  				\n 
+  				\n 
+  				\n 
+				${BRed}$param ${WHITE}does not found in ${BRed}${imdaa_data_path}${WHITE}.
+				
+				${BGreen}Solutions${WHITE}:
+                                1. Either keep all downloaded files in a single folder, or
+                                2. Correct the data path provided in the user input section.
 
-	So, sorting ${BGreen}IMDAA${WHITE} data ...
-	\n"
-	rm -rf $currdir/rundata
-	mkdir $currdir/rundata
-	while [ "$current_timestamp" -le "$end_timestamp" ]; do
-		current_date=$(date -d "@$current_timestamp" +"%Y%m%d%H")
-		rundate=$(date -d "@$current_timestamp" +"%Y%m%d")
-  		current_hour=$(date -d "@$current_timestamp" +"%H")
-        	for param in ${parameters[@]}
-        	do
-                	subset="${param}"
-	                echo -e "\n
-        	        Extracting ${BGreen}$subset${WHITE} from IMDAA ...
-	                \n"
-        	        sleep 1
-	                found_file=$(find "$imdaa_data_path" -type f -name "*_${subset}_*")
-        	        if [ -e "$found_file" ]; then
-                	        echo $rundate
-                        	echo $current_date
-	                        if [ "$current_hour" -eq 0 ] || [ "$current_hour" -eq 6 ] || [ "$current_hour" -eq 12 ] || [ "$current_hour" -eq 18 ]
-        	                then
-                	                wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${current_date}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${rundate}_${current_hour}.grib2
-                        	elif [ "$current_hour" -gt 0 ] && [ "$current_hour" -lt 6 ]
-	                        then
-        	                        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}00" -match_fs "$(( 10#$current_hour )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
-                	        elif [ "$current_hour" -gt 6 ] && [ "$current_hour" -lt 12 ]
-                        	then
-                                	apnd=$(( 10#${current_hour} - 6 ))
-	                                jj=`expr $apnd + 0`
-        	                        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}06" -match_fs "$jj hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
-                	        elif [ "$current_hour" -gt 12 ] && [ "$current_hour" -lt 18 ]
-                        	then
-                                	wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}12" -match_fs "$(( 10#${current_hour} - 12 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
-	                        elif [ "$current_hour" -gt 18 ]
-        	                then
-                	                wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}18" -match_fs "$(( 10#${current_hour} - 18 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
-                        	fi
-	                else
-        	                echo -e "\n
-                	        \n
-	                        ${BRed}$param ${WHITE}does not found in ${BRed}${imdaa_data_path}${WHITE}.
+       	                        ${BRed}Exiting ...${WHITE}
 
-        	                ${BGreen}Solutions${WHITE}:
-                	                1. Either keep all downloaded files in a single folder, or
-                        	        2. Correct the data path provided in the user input section.
-
-	                        ${BRed}Exiting ...${WHITE}
-        	                \n"
-                	        exit 1
-	                fi
-        	done
-	current_timestamp=$((current_timestamp + intervals))
+               	                \n"
+				exit 1
+				fi
+			done
+		done
 	done
-fi
+done
+
 #---------------------------------------------- geogrid section ------------------------------------------------------
-rm .log_geogrid.out
+rm geo_em.d0* .log_geogrid.out
 sed -i "s|geog_data_path.*|geog_data_path = '$wps_geog_path',|g" namelist.wps
 sed -i "s|opt_output_from_geogrid_path.*|opt_output_from_geogrid_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_geogrid_tbl_path.*|opt_geogrid_tbl_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_output_from_metgrid_path.*|opt_output_from_metgrid_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_metgrid_tbl_path.*|opt_metgrid_tbl_path = '$currdir',|g" namelist.wps
-if $RUN_GEOGRID; then
-	echo -e "\n
-	You have opted to run geogrid.
+echo -e "\n
+Going for ${BGreen}GEOGRID${WHITE} run ...
+\n"
 
-	So, going for ${BGreen}GEOGRID${WHITE} run ...
-	\n"
-	rm geo_em.d0* .log_geogrid.out
-	sleep 1
-	${RUN_COMMAND3}  > .log_geogrid.out 2>&1
+${RUN_COMMAND3}  > .log_geogrid.out 2>&1
 
-	export GEOFILE1=geogrid.log
-	export GEOFILE2=geogrid.log.0000
-	if [ -f "$GEOFILE1" ]; then
-        	until [[ ( ! -z $geogridlog ) ]]
-	        do
-        	        geogridlog=`cat $GEOFILE1 |tail -n100 |grep  "Successful completion of program geogrid.exe"`
-	                if [[ ( -z $geogridlog ) ]]
-        	        then
-                	        echo -e "\n
-	  			\n 
-  				\n 
-  				\n 
-	  			\n 
-  				\n 
-				${BGreen}GEOGRID${WHITE} is not successfully finished.
+export GEOFILE1=geogrid.log
+export GEOFILE2=geogrid.log.0000
+if [ -f "$GEOFILE1" ]; then
+        until [[ ( ! -z $geogridlog ) ]]
+        do
+                geogridlog=`cat $GEOFILE1 |tail -n100 |grep  "Successful completion of program geogrid.exe"`
+                if [[ ( -z $geogridlog ) ]]
+                then
+                        echo -e "\n
+  			\n 
+  			\n 
+  			\n 
+  			\n 
+  			\n 
+			${BGreen}GEOGRID${WHITE} is not successfully finished.
 
-				${BGreen}Possible solutions${WHITE}:
+			${BGreen}Possible solutions${WHITE}:
              
-     					1. Check for GEOGRID.TBL if it exists?
-        	                        2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
-					3. Check namelist.wps for any incorrect entry.
-					4. Check for data resolutions: 1deg/10m/5m/2m/30s
-					5. Check whether GEOGRID.TBL.ARW exists in $wps_path/geogrid? 
-					6. Could be due to incorrect mpi operation, try with serial run.
-				\n"
-	                        exit 1
-        	        else
-                	        echo -e "\n 
-				${BGreen}GEOGRID${WHITE} is finished. 
+     				1. Check for GEOGRID.TBL if it exists?
+                                2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
+				3. Check namelist.wps for any incorrect entry.
+				4. Check for data resolutions: 1deg/10m/5m/2m/30s
+				5. Check whether GEOGRID.TBL.ARW exists in $wps_path/geogrid? 
+				6. Could be due to incorrect mpi operation, try with serial run.
+			\n"
+                        exit 1
+                else
+                        echo -e "\n 
+			${BGreen}GEOGRID${WHITE} is finished. 
 			
-				Going for ${BGreen}UNGRIB${WHITE} run ...
-				\n"
-                        	rm .log_geogrid.out
-	                        break
-        	        fi
-	        done
-	elif [ -f "$GEOFILE2" ]; then
-        	until [[ ( ! -z $geogridlog ) ]]
-	        do
-        	        geogridlog=`cat $GEOFILE2 |tail -n100 |grep  "Successful completion of program geogrid.exe"`
-	                if [[ ( -z $geogridlog ) ]]
-        	        then
-                	        echo -e "\n
-	  			\n 
-  				\n 
-  				\n 
-	  			\n 
-				${RED}GEOGRID${WHITE} is not successfully finished.
+			Going for ${BGreen}UNGRIB${WHITE} run ...
+			\n"
+                        rm .log_geogrid.out
+                        break
+                fi
+        done
+elif [ -f "$GEOFILE2" ]; then
+        until [[ ( ! -z $geogridlog ) ]]
+        do
+                geogridlog=`cat $GEOFILE2 |tail -n100 |grep  "Successful completion of program geogrid.exe"`
+                if [[ ( -z $geogridlog ) ]]
+                then
+                        echo -e "\n
+  			\n 
+  			\n 
+  			\n 
+  			\n 
+			${RED}GEOGRID${WHITE} is not successfully finished.
 			
-                	        ${BGreen}Possible solutions${WHITE}:
-                        	        1. Check for GEOGRID.TBL if it exists?
-	                                2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
-        	                        3. Check namelist.wps for any incorrect entry.
-                	                4. Check for data resolutions: 1deg/10m/5m/2m/30s
-					5. Check whether GEOGRID.TBL.ARW exists in $wps_path/geogrid? 
-					6. Could be due to incorrect mpi operation, try with serial run.
-				\n"
-                	        exit 1
-	                else
-        	                echo -e "\n
-				${BGreen}GEOGRID${WHITE} is finished. 
+                        ${BGreen}Possible solutions${WHITE}:
+                                1. Check for GEOGRID.TBL if it exists?
+                                2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
+                                3. Check namelist.wps for any incorrect entry.
+                                4. Check for data resolutions: 1deg/10m/5m/2m/30s
+				5. Check whether GEOGRID.TBL.ARW exists in $wps_path/geogrid? 
+				6. Could be due to incorrect mpi operation, try with serial run.
+			\n"
+                        exit 1
+                else
+                        echo -e "\n
+			${BGreen}GEOGRID${WHITE} is finished. 
 		
-				Going for ${BGreen}UNGRIB${WHITE} run ...
-				\n"
-        	                rm .log_geogrid.out
-                	        break
-	                fi
-        	done
-	else
-        	sleep 5
-	        echo  -e "\n 
-  		\n 
-  		\n 
-  		\n 
-  		\n 
-		${BRed}FATAL ERROR. ${WHITE}
+			Going for ${BGreen}UNGRIB${WHITE} run ...
+			\n"
+                        rm .log_geogrid.out
+                        break
+                fi
+        done
+else
+        sleep 5
+        echo  -e "\n 
+  	\n 
+  	\n 
+  	\n 
+  	\n 
+	${BRed}FATAL ERROR. ${WHITE}
 		
-		GEOGRID is not completed. 
-		
-		${BGreen}Possible solutions${WHITE}: 
-			1. Check .log_geogrid.out file to locate the error source 
-		\n"
-		exit 1
-	fi
-fi
-#------------------------------- ungrib section -------------------------------------------------------------------
-if $RUN_UNGRIB; then
-	echo -e "\n
-	You have opted to run ungrib.
-
-	So, going for ${BGreen}UNGRIB${WHITE} run ...
+	GEOGRID is not completed. 
+	
+	${BGreen}Possible solutions${WHITE}: 
+		1. Check .log_geogrid.out file to locate the error source 
 	\n"
-	rm .log_ungrib_*
-	sed -i 's/fg_name.*/fg_name =/g' namelist.wps
-	for param in ${parameters[@]} 
-	do
-		echo -e "\n Running ungrib for ${param} ..."
-		sed -i "s/prefix.*/prefix = '${param}',/g" namelist.wps
-		sleep 1
-		str0=`cat namelist.wps|grep fg_name`
-		str1="${str0}"
-		str2=${param}
-		str3=${str1}\'${str2}\'
-		sed -i "s/ fg_name.*/${str3},/g" namelist.wps
-		rm GRIBFILE.* ${param}:* 
-		${wps_path}/link_grib.csh $currdir/rundata/${param}_*
-	
-		${RUN_COMMAND1}  > .log_ungrib_${param}.out 2>&1
-
-		until [[ ( ! -z $ungriblog ) ]]
-			do
-			ungriblog=`cat .log_ungrib_${param}.out |tail -n100 |grep  "Successful completion of ungrib."`
-			if [[ ( -z $ungriblog ) ]] 
-			then
-				echo -e "\n
-	  			\n 
-  				\n 
-  				\n 
-  				\n 
-				${BRed}ungrib for ${param} ${WHITE}is not finished, exiting ...
-	
-				${BGreen}Possible actions${WHITE}:
-			                1. Check .log_ungrib_${param}.out file to locate the error source.
-					2. If nothing traced, might be due to data inconsistency. Solution is not in your hand. Contact NCMRWF.
-				\n"
-				exit 1
-			else
-				continue 
-			fi
-		done
-		echo -e "\n
-		Ungrib for ${BGreen}${param} ${WHITE} is finished. Going for the next variable ...
-		\n"
-	done
+	exit 1
 fi
+
+#------------------------------- ungrib section -------------------------------------------------------------------
+rm .log_ungrib_*
+for param in ${parameters[@]} 
+do
+	echo -e "\n Running ungrib for ${param} ..."
+	sed -i "s/prefix.*/prefix = '${param}',/g" namelist.wps
+	sleep 1
+	str0=`cat namelist.wps|grep fg_name`
+	str1="${str0}"
+	str2=${param}
+	str3=${str1}\'${str2}\'
+	sed -i "s/ fg_name.*/${str3},/g" namelist.wps
+	rm GRIBFILE.* ${param}:* 
+	${wps_path}/link_grib.csh $currdir/rundata/${param}_*
+	
+	${RUN_COMMAND1}  > .log_ungrib_${param}.out 2>&1
+
+	until [[ ( ! -z $ungriblog ) ]]
+		do
+		ungriblog=`cat .log_ungrib_${param}.out |tail -n100 |grep  "Successful completion of ungrib."`
+		if [[ ( -z $ungriblog ) ]] 
+			then
+			echo -e "\n
+  			\n 
+  			\n 
+  			\n 
+  			\n 
+			${BRed}ungrib for ${param} ${WHITE}is not finished, exiting ...
+
+			${BGreen}Possible actions${WHITE}:
+		                1. Check .log_ungrib_${param}.out file to locate the error source.
+				2. If nothing traced, might be due to data inconsistency. Solution is not in your hand. Contact NCMRWF.
+			\n"
+			exit 1
+		else
+			continue 
+		fi
+	done
+	echo -e "\n
+	Ungrib for ${BGreen}${param} ${WHITE} is finished. Going for the next variable ...
+	\n"
+done
+
 #------------------------------- metgrid section -------------------------------------------------------------------
 rm .log_metgrid.out
-cat > .unsuccess_message << EOF
+cat > unsuccess_message << EOF
 #!/bin/bash
 echo -e "\n	
 \n
@@ -1711,9 +1716,9 @@ EOF
 all_non_zero=true
 rm .z
 for file in "${parameters[@]}"; do
-	for hour in $(eval echo "{00..23..$(( $intervals / 3600 ))}")
+	for hour in $(eval echo "{$start_hour..$end_hour..$intervals}")
         do
-        	ss=("$file":"$Start_year"-"$Start_month"-"$Start_date"_"$hour")
+        	ss=("$file":"$syyyy"-"$smm"-"$start_date"_"$hour")
                 if [ -e "$ss" ]; then
 			file_size=$(stat -c %s "$ss")
 			if [ "$file_size" -eq 0 ]; then
@@ -1739,7 +1744,7 @@ if $all_non_zero; then
 
 	Proceeding for ${BGreen}METGRID${WHITE} run ...
 	\n"
-	rm met_em.d0*	
+	
 	${RUN_COMMAND2}  > .log_metgrid.out 2>&1
 	sleep 2
 else
@@ -1754,33 +1759,13 @@ else
 	
 	Checking for files that have issues ...
         \n"
-	bash .unsuccess_message
+	bash unsuccess_message
 	cat .z
 	rm .z
     	exit 1
 fi
 
-# checking for success
-metfile1=(met_em.d01."$Start_year"-"$Start_month"-"$Start_date"_"$Start_hour":00:00.nc)
-echo $metfile1
-if [ -e "$metfile1" ]; then
-	ncdump -h $metfile1>.metfile2
-	val=`ncdump -h $metfile1 |grep NUM_METGRID_SOIL_LEVELS |awk {'print $3'}`
-	num_met_land_cat=`ncdump -h $metfile1 |grep NUM_LAND_CAT |awk {'print $3'}`
-	num_met_level=`ncdump -h $metfile1 |grep num_metgrid_levels |awk {'print $3'}|tr "\n" " "|cut -c1-2`
-else
-	echo -e "\n
-	${RED}$metfile1 does not exists !!!${WHITE}
-	\n
-	
-	Metgrid may be successful, but accuracy can not be checked. 
-	Does not guarantee WRF success.
-
-	Cause:
-		1. There is no parent domain for this simulation. 
-	\n"
-fi
-
+# checking for success of WPS
 cat > .success << EOF
 #!/bin/bash
 
@@ -1789,20 +1774,16 @@ echo -e '\n	--------------------------------------------------------------------
 	${BGreen}SUCCESS${WHITE}
 	
 	Creating intermediate files using ungrib and metgrid is done. 
-	Please proceed with ${BGreen}real.exe${WHITE} and ${BGreen}wrf.exe${WHITE} in the conventional way.
-	
-	Usefull data for namelist.input:
-
-		1. NUM_METGRID_SOIL_LEVELS = $val
-
-		2. NUM_LAND_CAT = $num_met_land_cat 
-
-		3. NUM_MET_LEVEL = $num_met_level
+	Please proceed with ${BGreen}real.exe${WHITE} and ${BGreen}wrf.exe${WHITE} in the conventional way. 
 
 	--------------------------------------------------------------------------------------------------------------------------- \n'
 EOF
 chmod +x .success
+metfile1=(met_em.d01."$syyyy"-"$smm"-"$start_date"_"$start_hour":00:00.nc)
+echo $metfile1
+ncdump -h $metfile1>.metfile2
 
+val=`awk '/'"NUM_METGRID_SOIL_LEVELS = "'/ { print }' ".metfile2" |cut -c30`
 export METFILE1=metgrid.log
 export METFILE2=metgrid.log.0000
 if [ -f "$METFILE1" ]; then
@@ -1877,17 +1858,14 @@ elif [ -f "$METFILE2" ]; then
 			Checking for accuracy ... 
 			\n"
                         if [ "$val" -gt 0 ]; then
+                                bash .success
                                 rm .log_* GRIBFILE.* .metfile2
-				rm -rf rundata
-				bash .success
                                 break
                         else
                                 echo -e "\n
 			       	Metgrid is finished, however, there is an issue in the ${BRed}metgrid soil level${WHITE}. 
 				
 				Do not go for the WRF run.
-
-				Contact NCMRWF !
 				\n"
                                 exit 1
                         fi			
@@ -1904,8 +1882,7 @@ else
 	FATAL ERROR. METGRID not completed${WHITE}. 
 		
 	Check for issues in .log_ungrib_* and .log_metgrid*  files to know the error source. 
-
 	Else contact NCMRWF.
 	\n"
 fi
-rm .success .unsuccess_message 
+rm .success 
