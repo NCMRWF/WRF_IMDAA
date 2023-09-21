@@ -19,8 +19,8 @@ options()
 {
 while test $# -gt 0; do
         case "$1" in
-		-d|--date)	shift; DATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
-		-e|--enddate)	shift; ENDDATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
+		-d|--date)	shift; STRTDATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
+		-e|--enddate)	shift; STOPDATETIME=$(date -d "$(echo $1 | tr "_" " ")"); shift;;
                 -h|--help) 	helpdesk;;
 		-m|--msg)	shift; MSGKEY=$1; shift;;
 		-r|--runid)	shift; RUN_NAME=$1; shift;;
@@ -48,21 +48,21 @@ cp -r ${NMLDIR}/namelist.wps ${RUNDIR}/namelist.wps
 
 export wps_namelist=${RUNDIR}/namelist.wps
 
-export start_date=$(date -d "${DATETIME}" +%Y-%m-%d_%H:%M:%S)
+export start_date=$(date -d "${STRTDATETIME}" +%Y-%m-%d_%H:%M:%S)
 sed -i "s+start_date.*+ start_date = '${start_date}',+" ${wps_namelist}
 grep "start_date" ${wps_namelist}
-Start_year=$(date -d "${DATETIME}" +%Y)   
-Start_month=$(date -d "${DATETIME}" +%m)
-Start_date=$(date -d "${DATETIME}" +%d)
-Start_hour=$(date -d "${DATETIME}" +%H)
+Start_year=$(date -d "${STRTDATETIME}" +%Y)   
+Start_month=$(date -d "${STRTDATETIME}" +%m)
+Start_date=$(date -d "${STRTDATETIME}" +%d)
+Start_hour=$(date -d "${STRTDATETIME}" +%H)
 
-export end_date=$(date -d "${ENDDATETIME}" +%Y-%m-%d_%H:%M:%S)
+export end_date=$(date -d "${STOPDATETIME}" +%Y-%m-%d_%H:%M:%S)
 sed -i "s+end_date.*+ end_date   = '${end_date}',+" ${wps_namelist}
 grep "end_date" ${wps_namelist}
-End_year=$(date -d "${ENDDATETIME}" +%Y)
-End_month=$(date -d "${ENDDATETIME}" +%m)
-End_date=$(date -d "${ENDDATETIME}" +%d)
-End_hour=$(date -d "${ENDDATETIME}" +%H)
+End_year=$(date -d "${STOPDATETIME}" +%Y)
+End_month=$(date -d "${STOPDATETIME}" +%m)
+End_date=$(date -d "${STOPDATETIME}" +%d)
+End_hour=$(date -d "${STOPDATETIME}" +%H)
 
 set -x
 sed -i "s+interval_seconds.*+ interval_seconds = ${interval_seconds},+" ${wps_namelist}
@@ -158,6 +158,7 @@ end_date="${End_year}-${End_month}-${End_date} ${End_hour}:00:00"
 start_timestamp=$(date -d "$start_date" +%s)
 end_timestamp=$(date -d "$end_date" +%s)
 current_timestamp="$start_timestamp"
+NORMAL='\e[0m'
 BLUE='\033[0;34m'
 WHITE='\033[0;37m'
 RED='\033[0;31m'
@@ -170,7 +171,7 @@ then
         echo -e "\n
         \n
         ${RED}
-        Simulation start time can not be higher than end time ${WHITE} ...
+        Simulation start time can not be higher than end time ${NORMAL} ...
 
         Please check the simulation date correctly.
         \n"
@@ -1003,8 +1004,8 @@ EOF
 
 echo -e "Selecting serial or parallel run.
 
-	For parallel run type: ${BGreen}yes${WHITE}
-	For serial run type: ${BGreen}no${WHITE}
+	For parallel run type: ${BGreen}yes${NORMAL}
+	For serial run type: ${BGreen}no${NORMAL}
 	\n"
 read -p "Do you want to go for a parallel run? (yes/no) " choice
 choice="${choice,,}"
@@ -1015,7 +1016,7 @@ openmpi_check=$(mpirun --version 2>&1)
 if [ "$choice" = "yes" ]; then
 	echo -e "\n
 
-        You have opted for a ${BGreen}parallel${WHITE} run ...
+        You have opted for a ${BGreen}parallel${NORMAL} run ...
 
         The selected number of processors: $nproc
 
@@ -1023,7 +1024,7 @@ if [ "$choice" = "yes" ]; then
 	sleep 2
 	if [[ $mpich_check == *"MPICH"* ]]; then
 		echo -e "\n
-	${BGreen}MPICH is installed.${WHITE} Proceeding ...
+	${BGreen}MPICH is installed.${NORMAL} Proceeding ...
 		\n"
 		sleep 1
 		export RUN_COMMAND1="mpirun -np 1 ./ungrib.exe "
@@ -1031,7 +1032,7 @@ if [ "$choice" = "yes" ]; then
         	export RUN_COMMAND3="mpirun -np $nproc ./geogrid.exe "
 	elif [[ $openmpi_check == *"Open MPI"* ]]; then
     		echo -e "\n
-	${BGreen}OpenMPI is installed.${WHITE} Proceeding ...
+	${BGreen}OpenMPI is installed.${NORMAL} Proceeding ...
 		\n"
 		sleep 1
 		export RUN_COMMAND1="mpirun -np 1 ./ungrib.exe "
@@ -1039,7 +1040,7 @@ if [ "$choice" = "yes" ]; then
         	export RUN_COMMAND3="mpirun -np $nproc ./geogrid.exe "
 	elif command -v mpiifort &>/dev/null; then
 		echo -e "\n
-        ${BGreen}Intel C compiler is installed.${WHITE} Proceeding ...
+        ${BGreen}Intel C compiler is installed.${NORMAL} Proceeding ...
 		\n"
 		sleep 1
 		export RUN_COMMAND1="mpirun -np 1 ./ungrib.exe "
@@ -1047,7 +1048,7 @@ if [ "$choice" = "yes" ]; then
                 export RUN_COMMAND3="mpirun -np $nproc ./geogrid.exe "
 	elif command -v mpiicc &>/dev/null; then
 		echo -e "\n
-        ${BGreen}Intel Fortran compiler is installed.${WHITE} Proceeding ...
+        ${BGreen}Intel Fortran compiler is installed.${NORMAL} Proceeding ...
 		\n"
 		sleep 1
 		export RUN_COMMAND1="mpirun -np 1 ./ungrib.exe "
@@ -1061,27 +1062,27 @@ if [ "$choice" = "yes" ]; then
 		\n
 		\n
 		${BRed}
-					FATAL ERROR ${WHITE}
+					FATAL ERROR ${NORMAL}
 	
 		Neither MPICH nor Openmpi nor Intel C compiler wrapper nor Intel 
 		Fortran compiler wrapper is installed on this machine.
 
-		${BGreen}Solution${WHITE}:
+		${BGreen}Solution${NORMAL}:
 
                 	1. Please install either of them before opting for a parallel run.
 
 		Preferred website:
                 
-		${BLUE}https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compilation_tutorial.php${WHITE}
+		${BLUE}https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compilation_tutorial.php${NORMAL}
 	       	
-		Else go for ${BGreen}serial${WHITE} run.
+		Else go for ${BGreen}serial${NORMAL} run.
 		\n"
 		exit
 	fi
 elif [ "$choice" = "no" ]; then
 	echo -e "\n
 	
-	You have opted for a ${BGreen}serial${WHITE} run ...
+	You have opted for a ${BGreen}serial${NORMAL} run ...
 	
 	\n"
 	sleep 1
@@ -1098,16 +1099,16 @@ else
     ${BRed}
     Invalid choice. 
     
-    ${WHITE}Please enter '${BRed}yes${WHITE}' for parallel run or '${BRed}no${WHITE}' for serial run.
+    ${NORMAL}Please enter '${BRed}yes${NORMAL}' for parallel run or '${BRed}no${NORMAL}' for serial run.
     
-    ${BRed}Exiting ...${WHITE}
+    ${BRed}Exiting ...${NORMAL}
     \n"
     exit 1
 fi
 # checking for wgrib2
 if command -v wgrib2 &>/dev/null; then
     echo -e "\n
-    	${BGreen}WGRIB2 is installed.${WHITE} Proceeding ...
+    	${BGreen}WGRIB2 is installed.${NORMAL} Proceeding ...
 	\n"
 	sleep 1
 else
@@ -1116,9 +1117,9 @@ else
     \n 
     \n 
     \n 
-    ${BRed}wgrib2 is not installed.${WHITE} 
+    ${BRed}wgrib2 is not installed.${NORMAL} 
     
-    ${BGreen}Solution${WHITE}:
+    ${BGreen}Solution${NORMAL}:
 
     	1. Please install wgrib2 before proceeding.
 
@@ -1131,7 +1132,7 @@ fi
 # checking for netcdf4
 if command -v ncdump &>/dev/null; then
     echo -e "\n
-        ${BGreen}NETCDF4 is installed.${WHITE} Proceeding ...
+        ${BGreen}NETCDF4 is installed.${NORMAL} Proceeding ...
 	\n"
 	sleep 1
 else
@@ -1140,9 +1141,9 @@ else
     \n 
     \n 
     \n 
-    ${BRed}NETCDF4 is not installed.${WHITE}
+    ${BRed}NETCDF4 is not installed.${NORMAL}
     
-    ${BGreen}Solution${WHITE}:
+    ${BGreen}Solution${NORMAL}:
 
     	1. Please install NETCDF4 before proceeding.
 
@@ -1156,7 +1157,7 @@ fi
 FILE=$wps_namelist
 if [ ! -f $FILE ]
 then
-    echo -e "\n ${BRed}namelist.wps does not exist.${WHITE} \n"
+    echo -e "\n ${BRed}namelist.wps does not exist.${NORMAL} \n"
 
     echo  -e "\n
     \n 
@@ -1166,7 +1167,7 @@ then
     
     namelist.wps does not exist in the specified folder. 
     
-    ${BGreen}Solution${WHITE}:
+    ${BGreen}Solution${NORMAL}:
 
     Please provide correct path of the namelist.wps as described by the sample script. Then re-run the script.
     ----------------------------------------------------------------------------------------------------------
@@ -1184,7 +1185,7 @@ staticdata=$wps_geog_path
 if [ -d "$staticdata" ]; then
   if [ "$(ls -A "$staticdata")" ]; then
 	echo -e "\n
-	WPS_GEOG static data folder ${BGreen}exists${WHITE} and ${BGreen}not empty${WHITE}.
+	WPS_GEOG static data folder ${BGreen}exists${NORMAL} and ${BGreen}not empty${NORMAL}.
 	
 	Proceeding ...
 	\n"
@@ -1196,9 +1197,9 @@ if [ -d "$staticdata" ]; then
     	\n 
     	\n 
 	${BRed}WPS_GEOG directory exists but is empty. 
-	${WHITE}
+	${NORMAL}
 
-	${BGreen}Solution${WHITE}:
+	${BGreen}Solution${NORMAL}:
 	
 	Please check the containts of the WPS_GEOG folder and make sure it has all the static data.
 	then re-run the script.
@@ -1209,16 +1210,16 @@ if [ -d "$staticdata" ]; then
   fi
 else
 	echo -e "
-	The WPS_GEOG folder does not exist. ${BRed}Exiting ...${WHITE} 
+	The WPS_GEOG folder does not exist. ${BRed}Exiting ...${NORMAL} 
 	\n"
 	echo  -e "\n 
 	\n
 	\n
 	\n
 	\n
-	${BRed}WPS_GEOG folder does not exist in the specified path:${WHITE} $wps_geog_path
+	${BRed}WPS_GEOG folder does not exist in the specified path:${NORMAL} $wps_geog_path
 	
-	${BGreen}Solution${WHITE}:
+	${BGreen}Solution${NORMAL}:
 	
 	Please correctly fill the WPS_GEOG folder path as mentioned. Then re-run the script.
 	-------------------------------------------------------------------------------------
@@ -1235,11 +1236,11 @@ then
     \n 
     \n 
     \n 
-    The WPS program directory does not exist. ${BRed}Exiting ...${WHITE}
+    The WPS program directory does not exist. ${BRed}Exiting ...${NORMAL}
     \n"
     echo  -e "\n 
     \n 
-    ${BRed}WPS program does not exist in the specified path:${WHITE} $wps_path
+    ${BRed}WPS program does not exist in the specified path:${NORMAL} $wps_path
     Please fill all necessary fields correctly as mentioned. Then re-run the script.
     --------------------------------------------------------------------------------- 
     \n"
@@ -1250,7 +1251,7 @@ else
 	wpsexe3=$wps_path/metgrid.exe
 	if [ -x "$wpsexe1" ] && [ -x "$wpsexe2" ] && [ -x "$wpsexe3" ]; then
   		echo -e "\n
-		${BGreen}geogrid.exe${WHITE}, ${BGreen}ungrib.exe${WHITE}, and ${BGreen}metgrid.exe${WHITE} exist and are executable. 
+		${BGreen}geogrid.exe${NORMAL}, ${BGreen}ungrib.exe${NORMAL}, and ${BGreen}metgrid.exe${NORMAL} exist and are executable. 
 		
 		Proceeding ...
 		\n"
@@ -1263,18 +1264,18 @@ else
     		\n 
     		\n 
     		\n 
-		Executables do not exist in the specified path:${WHITE} $wps_path
+		Executables do not exist in the specified path:${NORMAL} $wps_path
 		
-		${BGreen}Solution${WHITE}:
+		${BGreen}Solution${NORMAL}:
         	
 		Please install the WPS suite properly so that all executables are build (geogrid.exe, ungrib.exe, and metgrid.exe).
 		Then re-run the script.
 		
 		Preferred website:
-		${BLUE}https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compilation_tutorial.php${WHITE}
+		${BLUE}https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compilation_tutorial.php${NORMAL}
 	       	--------------------------------------------------------------------------------------------------------------------- 
 		
-		${BRed}Exiting ...${WHITE}
+		${BRed}Exiting ...${NORMAL}
 		\n"
 		exit 1
 	fi
@@ -1295,7 +1296,7 @@ eLHH=`cut -d "=" -f2 <<< $checkmatchend|grep -o " '.*"|cut -c14-15`
 
 if [ "$sLyyyy" -eq $Start_year ]; then
   echo -e "\n 
-  ${BGreen}Simulation start year is similar. ${WHITE}
+  ${BGreen}Simulation start year is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1305,17 +1306,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between the entered year and the namelist.wps start year. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between the entered year and the namelist.wps start year. Please correct it and re-run the script.${NORMAL}
 
   Namelist start year: $sLyyyy
   Script start year: $Start_year
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$sLmm" -eq $Start_month ]; then
-  echo -e "\n ${BGreen}Simulation start month is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation start month is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1325,17 +1326,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered month and namelist.wps start month. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered month and namelist.wps start month. Please correct it and re-run the script.${NORMAL}
 
   Namelist start month: $sLmm
   Script start month: $Start_month
 
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$sLdd" -eq $Start_date ]; then
-  echo -e "\n ${BGreen}Simulation start date is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation start date is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1345,17 +1346,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered start date and namelist.wps start date. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered start date and namelist.wps start date. Please correct it and re-run the script.${NORMAL}
 
   Namelist start date: $sLdd
   Script start date: $Start_date
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$sLHH" -eq $Start_hour ]; then
-  echo -e "\n ${BGreen}Simulation start hour is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation start hour is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1365,17 +1366,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered start hour and namelist.wps start hour. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered start hour and namelist.wps start hour. Please correct it and re-run the script.${NORMAL}
 
   Namelist start hour: $sLHH
   Script start hour: $Start_hour
 
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$eLyyyy" -eq $End_year ]; then
-  echo -e "\n ${BGreen}Simulation end year is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation end year is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1385,17 +1386,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered end year and namelist.wps end year. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered end year and namelist.wps end year. Please correct it and re-run the script.${NORMAL}
 
   Namelist end year: $eLyyyy
   Script end year: $End_year
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$eLmm" -eq $End_month ]; then
-  echo -e "\n ${BGreen}Simulation end month is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation end month is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1405,17 +1406,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Misimatch between entered end month and namelist.wps end month. Please correct it and re-run the script.${WHITE}
+  ${BRed}Misimatch between entered end month and namelist.wps end month. Please correct it and re-run the script.${NORMAL}
 
   Namelist end month: $eLmm
   Script end month: $End_month
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$eLdd" -eq $End_date ]; then
-  echo -e "\n ${BGreen}Simulation end date is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation end date is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1425,17 +1426,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered end date and namelist.wps end date. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered end date and namelist.wps end date. Please correct it and re-run the script.${NORMAL}
 
   Namelist end date: $eLdd
   Script end date: $End_date
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ "$eLHH" -eq $End_hour ]; then
-  echo -e "\n ${BGreen}Simulation end hour is similar. ${WHITE}
+  echo -e "\n ${BGreen}Simulation end hour is similar. ${NORMAL}
 
   Proceeding ... \n"
 sleep 1
@@ -1445,17 +1446,17 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered end hour and namelist.wps end hour. Please correct it and re-run the script.${WHITE}
+  ${BRed}Mismatch between entered end hour and namelist.wps end hour. Please correct it and re-run the script.${NORMAL}
 
   Namelist end hour: $sLHH
   Script end hour: $End_hour
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
 if [ $Linterval -eq $interval_seconds ]; then
-  echo -e "\n ${BGreen}Data interval is similar. ${WHITE}
+  echo -e "\n ${BGreen}Data interval is similar. ${NORMAL}
 
   Proceeding ... 
   \n"
@@ -1466,12 +1467,12 @@ else
   \n 
   \n 
   \n 
-  ${BRed}Mismatch between entered interval and namelist.wps interval. Please correct it and re-run the script${WHITE}
+  ${BRed}Mismatch between entered interval and namelist.wps interval. Please correct it and re-run the script${NORMAL}
 
   	Script interval: $interval_seconds
   	Namelist interval: $Linterval
   
-  ${BRed}Exiting ...${WHITE} \n"
+  ${BRed}Exiting ...${NORMAL} \n"
   exit 1
 fi
 
@@ -1482,7 +1483,7 @@ if $SORT_IMDAA; then
 	echo -e "\n
 	You have opted to sort IMDAA data.
 
-	So, sorting ${BGreen}IMDAA${WHITE} data ...
+	So, sorting ${BGreen}IMDAA${NORMAL} data ...
 	\n"
 	rm -rf $currdir/rundata
 	mkdir $currdir/rundata
@@ -1494,7 +1495,7 @@ if $SORT_IMDAA; then
         	do
                 	subset="${param}"
 	                echo -e "\n
-        	        Extracting ${BGreen}$subset${WHITE} from IMDAA ...
+        	        Extracting ${BGreen}$subset${NORMAL} from IMDAA ...
 	                \n"
         	        sleep 1
 	                found_file=$(find "$imdaa_data_path" -type f -name "*_${subset}_*")
@@ -1522,13 +1523,13 @@ if $SORT_IMDAA; then
 	                else
         	                echo -e "\n
                 	        \n
-	                        ${BRed}$param ${WHITE}does not found in ${BRed}${imdaa_data_path}${WHITE}.
+	                        ${BRed}$param ${NORMAL}does not found in ${BRed}${imdaa_data_path}${NORMAL}.
 
-        	                ${BGreen}Solutions${WHITE}:
+        	                ${BGreen}Solutions${NORMAL}:
                 	                1. Either keep all downloaded files in a single folder, or
                         	        2. Correct the data path provided in the user input section.
 
-	                        ${BRed}Exiting ...${WHITE}
+	                        ${BRed}Exiting ...${NORMAL}
         	                \n"
                 	        exit 1
 	                fi
@@ -1547,7 +1548,7 @@ if $RUN_GEOGRID; then
 	echo -e "\n
 	You have opted to run geogrid.
 
-	So, going for ${BGreen}GEOGRID${WHITE} run ...
+	So, going for ${BGreen}GEOGRID${NORMAL} run ...
 	\n"
 	rm geo_em.d0* .log_geogrid.out
 	sleep 1
@@ -1567,9 +1568,9 @@ if $RUN_GEOGRID; then
   				\n 
 	  			\n 
   				\n 
-				${BGreen}GEOGRID${WHITE} is not successfully finished.
+				${BGreen}GEOGRID${NORMAL} is not successfully finished.
 
-				${BGreen}Possible solutions${WHITE}:
+				${BGreen}Possible solutions${NORMAL}:
              
      					1. Check for GEOGRID.TBL if it exists?
         	                        2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
@@ -1581,9 +1582,9 @@ if $RUN_GEOGRID; then
 	                        exit 1
         	        else
                 	        echo -e "\n 
-				${BGreen}GEOGRID${WHITE} is finished. 
+				${BGreen}GEOGRID${NORMAL} is finished. 
 			
-				Going for ${BGreen}UNGRIB${WHITE} run ...
+				Going for ${BGreen}UNGRIB${NORMAL} run ...
 				\n"
                         	rm .log_geogrid.out
 	                        break
@@ -1600,9 +1601,9 @@ if $RUN_GEOGRID; then
   				\n 
   				\n 
 	  			\n 
-				${RED}GEOGRID${WHITE} is not successfully finished.
+				${RED}GEOGRID${NORMAL} is not successfully finished.
 			
-                	        ${BGreen}Possible solutions${WHITE}:
+                	        ${BGreen}Possible solutions${NORMAL}:
                         	        1. Check for GEOGRID.TBL if it exists?
 	                                2. Issue in WPS_GEOG static data, maybe some necessary folders are missing.
         	                        3. Check namelist.wps for any incorrect entry.
@@ -1613,9 +1614,9 @@ if $RUN_GEOGRID; then
                 	        exit 1
 	                else
         	                echo -e "\n
-				${BGreen}GEOGRID${WHITE} is finished. 
+				${BGreen}GEOGRID${NORMAL} is finished. 
 		
-				Going for ${BGreen}UNGRIB${WHITE} run ...
+				Going for ${BGreen}UNGRIB${NORMAL} run ...
 				\n"
         	                rm .log_geogrid.out
                 	        break
@@ -1628,11 +1629,11 @@ if $RUN_GEOGRID; then
   		\n 
   		\n 
   		\n 
-		${BRed}FATAL ERROR. ${WHITE}
+		${BRed}FATAL ERROR. ${NORMAL}
 		
 		GEOGRID is not completed. 
 		
-		${BGreen}Possible solutions${WHITE}: 
+		${BGreen}Possible solutions${NORMAL}: 
 			1. Check .log_geogrid.out file to locate the error source 
 		\n"
 		exit 1
@@ -1643,7 +1644,7 @@ if $RUN_UNGRIB; then
 	echo -e "\n
 	You have opted to run ungrib.
 
-	So, going for ${BGreen}UNGRIB${WHITE} run ...
+	So, going for ${BGreen}UNGRIB${NORMAL} run ...
 	\n"
 	rm .log_ungrib_*
 	sed -i 's/fg_name.*/fg_name =/g' namelist.wps
@@ -1672,9 +1673,9 @@ if $RUN_UNGRIB; then
   				\n 
   				\n 
   				\n 
-				${BRed}ungrib for ${param} ${WHITE}is not finished, exiting ...
+				${BRed}ungrib for ${param} ${NORMAL}is not finished, exiting ...
 	
-				${BGreen}Possible actions${WHITE}:
+				${BGreen}Possible actions${NORMAL}:
 			                1. Check .log_ungrib_${param}.out file to locate the error source.
 					2. If nothing traced, might be due to data inconsistency. Solution is not in your hand. Contact NCMRWF.
 				\n"
@@ -1684,7 +1685,7 @@ if $RUN_UNGRIB; then
 			fi
 		done
 		echo -e "\n
-		Ungrib for ${BGreen}${param} ${WHITE} is finished. Going for the next variable ...
+		Ungrib for ${BGreen}${param} ${NORMAL} is finished. Going for the next variable ...
 		\n"
 	done
 fi
@@ -1702,10 +1703,10 @@ echo -e "\n
 		${RED}${BRed}FATAL ERROR
 
 		Can not go for Metgrid...
-		${WHITE}
+		${NORMAL}
                 --------------------------------------------------------------------------------------------------------------
                 The reason for not proceeding with metgrid is due to the below red-colored file/files.
-                Either remove this particular variable defined in ${BGreen}parameters${WHITE} option for proceeding to metgrid.
+                Either remove this particular variable defined in ${BGreen}parameters${NORMAL} option for proceeding to metgrid.
                 
 		P.S.: Raise a concern to NCMRWF for clarifications related to this/these dataset/datasets.
 
@@ -1725,7 +1726,7 @@ for file in ${parameters}; do
 			file_size=$(stat -c %s "$ss")
 			if [ "$file_size" -eq 0 ]; then
 				all_non_zero=false
-				echo -e "File ${RED}$ss ${WHITE}is empty. "  >> .z
+				echo -e "File ${RED}$ss ${NORMAL}is empty. "  >> .z
 			fi
 		else
 			echo -e "\n
@@ -1733,7 +1734,7 @@ for file in ${parameters}; do
 			\n
 			\n
 			\n
-			File ${BRed}$ss${WHITE} does not exist.
+			File ${BRed}$ss${NORMAL} does not exist.
 			\n"
 			all_non_zero=false
         	fi
@@ -1742,9 +1743,9 @@ done
 
 if $all_non_zero; then
 	echo -e "\n
-	Successfully finished ${BGreen} Ungrib ${WHITE}for all parameters.
+	Successfully finished ${BGreen} Ungrib ${NORMAL}for all parameters.
 
-	Proceeding for ${BGreen}METGRID${WHITE} run ...
+	Proceeding for ${BGreen}METGRID${NORMAL} run ...
 	\n"
 	rm met_em.d0*	
 	${RUN_COMMAND2}  > .log_metgrid.out 2>&1
@@ -1755,9 +1756,9 @@ else
 	\n
 	\n
 	\n
-        ${BLUE}Successfully finished UNGRIB for all parameters.${WHITE}
+        ${BLUE}Successfully finished UNGRIB for all parameters.${NORMAL}
 
-        But, ${BRed}some files have zero size${WHITE}. Hence, can not proceed with the METGRID.
+        But, ${BRed}some files have zero size${NORMAL}. Hence, can not proceed with the METGRID.
 	
 	Checking for files that have issues ...
         \n"
@@ -1777,7 +1778,7 @@ if [ -e "$metfile1" ]; then
 	num_met_level=`ncdump -h $metfile1 |grep num_metgrid_levels |awk {'print $3'}|tr "\n" " "|cut -c1-2`
 else
 	echo -e "\n
-	${RED}$metfile1 does not exists !!!${WHITE}
+	${RED}$metfile1 does not exists !!!${NORMAL}
 	\n
 	
 	Metgrid may be successful, but accuracy can not be checked. 
@@ -1793,10 +1794,10 @@ cat > .success << EOF
 
 echo -e '\n	--------------------------------------------------------------------------------------------------------------------------
 	
-	${BGreen}SUCCESS${WHITE}
+	${BGreen}SUCCESS${NORMAL}
 	
 	Creating intermediate files using ungrib and metgrid is done. 
-	Please proceed with ${BGreen}real.exe${WHITE} and ${BGreen}wrf.exe${WHITE} in the conventional way.
+	Please proceed with ${BGreen}real.exe${NORMAL} and ${BGreen}wrf.exe${NORMAL} in the conventional way.
 	
 	Usefull data for namelist.input:
 
@@ -1824,10 +1825,10 @@ if [ -f "$METFILE1" ]; then
 			\n
 			\n
 			
-			${RED}METGRID is not successful. ${WHITE}
+			${RED}METGRID is not successful. ${NORMAL}
 
-			Check for missing of any ${RED}essential variable${WHITE}
-			in the ${BLUE}parameters${WHITE} option
+			Check for missing of any ${RED}essential variable${NORMAL}
+			in the ${BLUE}parameters${NORMAL} option
 			
 			Please add all essential parameters to the list.
 					
@@ -1835,7 +1836,7 @@ if [ -f "$METFILE1" ]; then
 			exit 1
                 else
                         echo -e "\n 
-			${BGreen}METGRID${WHITE} is finished. 
+			${BGreen}METGRID${NORMAL} is finished. 
 			\n
 			\n
 			Checking for accuracy ... 
@@ -1847,7 +1848,7 @@ if [ -f "$METFILE1" ]; then
 			else
 				echo -e "\n
 			       	The metgrid is finished.
-			       	However, there is an issue with the ${BRed}metgrid soil level${WHITE}. 
+			       	However, there is an issue with the ${BRed}metgrid soil level${NORMAL}. 
 				
 				Do not go for the WRF run.
 				\n"
@@ -1868,7 +1869,7 @@ elif [ -f "$METFILE2" ]; then
 			\n
 
                         ${RED}METGRID is not successful. 
-			${WHITE}Check for missing of any ${RED}essential variable${WHITE} in the ${BLUE}parameters${WHITE} option
+			${NORMAL}Check for missing of any ${RED}essential variable${NORMAL} in the ${BLUE}parameters${NORMAL} option
 		
 			
 			Please add all essential parameters to the list.
@@ -1878,7 +1879,7 @@ elif [ -f "$METFILE2" ]; then
                         exit 1
                 else
 			echo -e "\n ${BGreen}
-			METGRID${WHITE} is finished.
+			METGRID${NORMAL} is finished.
 			\n
 			\n
 			Checking for accuracy ... 
@@ -1890,7 +1891,7 @@ elif [ -f "$METFILE2" ]; then
                                 break
                         else
                                 echo -e "\n
-			       	Metgrid is finished, however, there is an issue in the ${BRed}metgrid soil level${WHITE}. 
+			       	Metgrid is finished, however, there is an issue in the ${BRed}metgrid soil level${NORMAL}. 
 				
 				Do not go for the WRF run.
 
@@ -1908,7 +1909,7 @@ else
 	\n
 	\n
 	${BRed}
-	FATAL ERROR. METGRID not completed${WHITE}. 
+	FATAL ERROR. METGRID not completed${NORMAL}. 
 		
 	Check for issues in .log_ungrib_* and .log_metgrid*  files to know the error source. 
 
