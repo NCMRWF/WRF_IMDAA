@@ -78,7 +78,6 @@
 # Author : Vivekananda Hazra (vhazra@ncmrwf.gov.in)								        |
 # Version : 20-Sep-2023												        |
 #------------------------------------------------------------------------------------------------------------------------
-set -x
 ulimit -s unlimited
 currdir=`pwd`
 
@@ -91,11 +90,13 @@ export NMLDIR=${HOMEDIR}/nml
 helpdesk()
 {
 echo -e "Usage: \n $0"
-                        echo "options:"
-			echo "-h	--help		Help"
-			echo "-m	--msg		Short Message for git commit"
-			echo "-r	--runid		Run Name"
-                        exit 0
+                echo "options:"
+		echo "-d	--date		Start Date and Time"
+		echo "-e	--enddate	Stop Date and Time"
+		echo "-h	--help		Help"
+		echo "-m	--msg		Short Message for git commit"
+		echo "-r	--runid		Run Name"
+                exit 0
 }
 ###########################################################################################
 options()
@@ -123,37 +124,45 @@ for key in ${keylist}; do
 echo ${key}="${!key}"
 done
 
-########### UPDATE ################################################################################
-if [ -z ${STRTDATETIME} ]; then
-	echo **********
+########### UPDATE ###################################################################################################
+if [[ -z ${STRTDATETIME} ]]; then
+	echo "STRTDATETIME and STOPDATETIME need to be specified either in namelist ${runkeynml} or through argument"
+	helpdesk
 	exit
 fi
-###########################################################################################
+######################################################################################################################
 
 if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
 
-setenvscript="${HOMEDIR}/site/${sitename}/set_env.sh"
+if [ ${site} != "none" ]; then
+setenvscript="${HOMEDIR}/site/${site}/set_env.sh"
 echo ${setenvscript}
 source ${setenvscript}
-
-cp -r ${NMLDIR}/namelist.wps ${RUNDIR}/namelist.wps
+fi
 
 export wps_namelist=${RUNDIR}/namelist.wps
+cp -r ${NMLDIR}/namelist.wps ${wps_namelist}
 
-export start_date=$(date -d "${STRTDATETIME}" +%Y-%m-%d_%H:%M:%S)
-###########           change ################################################################################
-sed -i "s+start_date.*+ start_date = '${start_date}',+" ${wps_namelist}
-###########################################################################################
+fmtstr=""
+for i in $(seq $max_dom) ; do
+	fmtstr="${fmtstr}'%Y-%m-%d_%H:%M:%S'",
+done
+
+export start_date=$(date -d "${STRTDATETIME}" +${fmtstr})
+export end_date=$(date -d "${STOPDATETIME}" +${fmtstr})
+
+sed -i "s+start_date.*+ start_date = $(echo ${start_date})+" ${wps_namelist}
+sed -i "s+end_date.*+ end_date   = $(echo ${end_date})+" ${wps_namelist}
+
 grep "start_date" ${wps_namelist}
+grep "end_date" ${wps_namelist}
+##############################################################################
 Start_year=$(date -d "${STRTDATETIME}" +%Y)   
 Start_month=$(date -d "${STRTDATETIME}" +%m)
 Start_date=$(date -d "${STRTDATETIME}" +%d)
 Start_hour=$(date -d "${STRTDATETIME}" +%H)
 
-export end_date=$(date -d "${STOPDATETIME}" +%Y-%m-%d_%H:%M:%S)
-sed -i "s+end_date.*+ end_date   = '${end_date}',+" ${wps_namelist}
-grep "end_date" ${wps_namelist}
 End_year=$(date -d "${STOPDATETIME}" +%Y)
 End_month=$(date -d "${STOPDATETIME}" +%m)
 End_date=$(date -d "${STOPDATETIME}" +%d)
