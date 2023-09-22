@@ -43,9 +43,11 @@ done
 if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
 
-setenvscript="${HOMEDIR}/site/${sitename}/set_env.sh"
+if [ ${site} != "none" ]; then
+setenvscript="${HOMEDIR}/site/${site}/set_env.sh"
 echo ${setenvscript}
 source ${setenvscript}
+fi
 
 cp -r ${NMLDIR}/namelist.wps ${RUNDIR}/namelist.wps
 

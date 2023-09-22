@@ -9,18 +9,20 @@
 # 																	|
 #----------------------------------------------------------------------------------------------------------------------------------------
 
-setenvscript=/home/gibies/Build_WRF/set_env.sh
+STRTDATETIME=20150101 00
+STOPDATETIME=20150101 18
+site=gibpc
 RUNDIR=/home/gibies/Build_WRF/test_run_20150101
 # here kept all downloaded IMDAA data
-imdaa_data_path=/home/gibies/imdaa/20150101
+imdaa_data_path=/home/gibies/data/imdaa/20150101
 # This is where you have installed the WPS package
 wps_path=/home/gibies/Build_WRF/WPS-4.5
 # static data WPS_GEOG path
-wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
+wps_geog_path=/home/gibies/data/WPS_GEOG
 
 # set false if you do not want to repeat the processes
-SORT_IMDAA=true
-RUN_GEOGRID=true
+SORT_IMDAA=false
+RUN_GEOGRID=false
 RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
@@ -33,7 +35,7 @@ interval_seconds=21600
 
 # IMDAA parameter names. Do not change unless you are getting any instruction after an unsuccessful Metgrid run
 # UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m CISOILM-L1 CISOILM-L2 CISOILM-L3 CISOILM-L4 WEASD-sfc 
-parameters= UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m WEASD-sfc 
+parameters= UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m UGRD-10m VGRD-10m WEASD-sfc 
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #																	|
