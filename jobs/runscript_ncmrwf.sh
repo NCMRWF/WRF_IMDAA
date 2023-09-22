@@ -42,6 +42,9 @@ done
 
 if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
+
+setenvscript="${HOMEDIR}/site/${sitename}/set_env.sh"
+echo ${setenvscript}
 source ${setenvscript}
 
 cp -r ${NMLDIR}/namelist.wps ${RUNDIR}/namelist.wps
@@ -69,7 +72,7 @@ sed -i "s+interval_seconds.*+ interval_seconds = ${interval_seconds},+" ${wps_na
 grep -ir "interval_seconds" ${wps_namelist}
 
 #----------------------------------------------------------------------------------------------------------------------------------------
-
+#exit
 #----------------------------------------------------------------------------------------------------------------
 # The purpose of this script is to produce metgrid output files in user-defined interval_seconds from IMDAA data. 	|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	|
