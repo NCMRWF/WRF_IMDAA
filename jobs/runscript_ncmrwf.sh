@@ -181,6 +181,9 @@ then
         exit 1
 fi
 
+cp -r ${HOMEDIR}/tables/WRF-Noah/METGRID.TBL_NCUM ${RUNDIR}/METGRID.TBL
+
+: '
 cat > METGRID.TBL << EOF
 ========================================
 name=ST
@@ -972,7 +975,11 @@ name=HGTMAXW
         flag_in_output=FLAG_HGTMAXW
 ========================================
 EOF
+'
 
+cp -r ${HOMEDIR}/tables/WRF-Noah/Vtable.NCUM ${RUNDIR}/Vtable
+
+: '
 cat > Vtable << EOF
 GRIB1| Level| From |  To  | metgrid  | metgrid | metgrid                                 |GRIB2|GRIB2|GRIB2|GRIB2|
 Param| Type |Level1|Level2| Name     | Units   | Description                             |Discp|Catgy|Param|Level|
@@ -1004,6 +1011,7 @@ Param| Type |Level1|Level2| Name     | Units   | Description                    
      |   1  |   0  |      | SNOWH    | m       | Physical Snow Depth                     |  0  |  1  |     |   1 |
 -----+------+------+------+----------+---------+-----------------------------------------+-----------------------+
 EOF
+'
 
 echo -e "Selecting serial or parallel run.
 
