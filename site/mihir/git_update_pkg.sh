@@ -3,14 +3,15 @@ set -x
 SELF=$(realpath ${0})
 TASKNAME=${SELF##*/}
 export GITROOT=${SELF%/site*}
+export JOBSDIR=${GITROOT}/jobs
 echo ${GITROOT}
 cd ${GITROOT}
 if [ -z ${HOST} ] ; then
-${GITROOT}/${TASKNAME}
+${JOBSDIR}/${TASKNAME}
 else
 if [ ${HOST:0:6} == "elogin" ]; then
-ssh -x utility01 ${GITROOT}/${TASKNAME}
+ssh -x utility01 ${JOBSDIR}/${TASKNAME}
 else
-${GITROOT}/${TASKNAME}
+${JOBSDIR}/${TASKNAME}
 fi
 fi

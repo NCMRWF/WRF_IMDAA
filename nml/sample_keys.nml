@@ -10,6 +10,7 @@
 #----------------------------------------------------------------------------------------------------------------------------------------
 STRTDATETIME=20200101 00
 STOPDATETIME=20200101 18
+site=none
 setenvscript=/home/gibies/Build_WRF/set_env.sh
 RUNDIR=/home/gibies/Build_WRF/test_run_20200101
 # here kept all downloaded IMDAA data
