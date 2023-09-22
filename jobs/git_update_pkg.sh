@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 SELF=$(realpath ${0})
-export GITROOT=${SELF%/*}
+export GITROOT=${SELF%/jobs*}
 echo ${GITROOT}
 cd ${GITROOT}
 UTFList=$(git ls-files --others --exclude-standard)
