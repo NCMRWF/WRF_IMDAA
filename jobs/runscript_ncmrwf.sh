@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #------------------------------------------------------------------------------------------------------------------------
 # The purpose of this script is to produce metgrid output files in user-defined intervals from IMDAA data.		|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	    	|
