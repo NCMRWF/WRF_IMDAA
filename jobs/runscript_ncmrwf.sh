@@ -332,7 +332,7 @@ fi
 # checking for ncks
 if command -v ncks &> /dev/null; then
     echo -e "\n
-        ${BGreen}NCKS is installed.${WHITE} Proceeding ...
+        ${BGreen}NCKS is installed.${NORMAL} Proceeding ...
         \n"
         sleep 1
 else
@@ -341,15 +341,15 @@ else
     \n
     \n
     \n
-    ${BRed}NCKS is not installed.${WHITE}
+    ${BRed}NCKS is not installed.${NORMAL}
 
-    ${BGreen}Solution${WHITE}:
+    ${BGreen}Solution${NORMAL}:
 
     Please install ncks before proceeding.
-    1. For Ubuntu/Debian: ${BGreen}sudo apt install nco${WHITE}
-    2. For CentOS/RHEL: ${BGreen}sudo yum install nco${WHITE}
-    3. For Fedora: ${BGreen}sudo dnf install nco${WHITE}
-    4. For openSUSE: ${BGreen}sudo zypper install nco${WHITE}
+    1. For Ubuntu/Debian: ${BGreen}sudo apt install nco${NORMAL}
+    2. For CentOS/RHEL: ${BGreen}sudo yum install nco${NORMAL}
+    3. For Fedora: ${BGreen}sudo dnf install nco${NORMAL}
+    4. For openSUSE: ${BGreen}sudo zypper install nco${NORMAL}
     \n"
     exit 1
 fi

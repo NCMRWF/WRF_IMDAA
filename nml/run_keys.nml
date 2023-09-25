@@ -10,19 +10,14 @@
 #----------------------------------------------------------------------------------------------------------------------------------------
 STRTDATETIME=20200101 00
 STOPDATETIME=20200101 18
-<<<<<<< Updated upstream
-site=none
-=======
 
->>>>>>> Stashed changes
-setenvscript=/home/gibies/Build_WRF/set_env.sh
-
+#Output path
 RUNDIR=/home/gibies/Build_WRF/test_run_20200101
-# here kept all downloaded IMDAA data
+#Input path to keep all downloaded IMDAA data
 imdaa_data_path=/home/gibies/imdaa/20200101
-# This is where you have installed the WPS package
+#WPS packages are installed in wps_path
 wps_path=/home/gibies/Build_WRF/WPS-4.5
-# static data WPS_GEOG path
+#WPS_GEOG path contain the static data
 wps_geog_path=/home/gibies/Build_WRF/WPS_GEOG
 
 # set false if you do not want to repeat the processes
