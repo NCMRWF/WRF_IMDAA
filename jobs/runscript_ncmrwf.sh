@@ -108,6 +108,7 @@ while test $# -gt 0; do
                 -h|--help) 	helpdesk;;
 		-m|--msg)	shift; MSGKEY=$1; shift;;
 		-r|--runid)	shift; RUN_NAME=$1; shift;;
+		-s|--site)	shift; SITE=$1; shift;;
 		*)		shift;;
 	esac
 done
@@ -115,8 +116,13 @@ done
 ###########################################################################################
 options $(echo $@  | tr "=" " ")
 ###########################################################################################
-if [ -z ${RUN_NAME} ] ; then export RUN_NAME="sample" ; fi
+if [ -z ${RUN_NAME} ] ; then export RUN_NAME="run" ; fi
+if [ -z ${SITE} ] ; then
+site="none"
 runkeynml=${NMLDIR}/${RUN_NAME}_keys.nml
+else
+runkeynml=${HOMEDIR}/site/${SITE}/${RUN_NAME}_keys.nml
+fi
 keylist=$(grep -v '^#' ${runkeynml} | tr '=' ' ' | awk '{print $1}')
 
 for key in ${keylist}; do
@@ -135,8 +141,8 @@ fi
 if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
 
-if [ ${site} != "none" ]; then
-setenvscript="${HOMEDIR}/site/${site}/set_env.sh"
+if [ ! -z ${SITE} ] ; then
+setenvscript="${HOMEDIR}/site/${SITE}/set_env.sh"
 echo ${setenvscript}
 source ${setenvscript}
 fi
