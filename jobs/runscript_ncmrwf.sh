@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #------------------------------------------------------------------------------------------------------------------------
 # The purpose of this script is to produce metgrid output files in user-defined intervals from IMDAA data.		|
 # This generates separate intermediate files (by UNGRIB) for different parameters such as mean sea level 	    	|
@@ -27,7 +26,7 @@
 # PREREQUISITES:												        |
 # (1) Installed WPS. The path needs to be given in wps_path.							        |
 # (2) Installed wgrib2 for sorting the data.									        |
-# (3) Installed NETCDF4 for checking data.									        |
+# (3) Installed NETCDF4 and NCKS for checking data.								        |
 # (4) Installed openmpi or mpich for parallel run. Otherwise, go for a serial run.				        |
 # (5) Download the IMDAA data. Keep it as it is and mention the path in imdaa_data_path.			        |
 #														        |
@@ -326,6 +325,31 @@ else
 
     Preferred website:
     ${BLUE}https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/compile_questions.html#:~:text=1)%20Download%20ftp%3A%2F%2Fftp,1.2%20..
+    \n"
+    exit 1
+fi
+
+# checking for ncks
+if command -v ncks &> /dev/null; then
+    echo -e "\n
+        ${BGreen}NCKS is installed.${WHITE} Proceeding ...
+        \n"
+        sleep 1
+else
+    echo -e "\n
+    \n
+    \n
+    \n
+    \n
+    ${BRed}NCKS is not installed.${WHITE}
+
+    ${BGreen}Solution${WHITE}:
+
+    Please install ncks before proceeding.
+    1. For Ubuntu/Debian: ${BGreen}sudo apt install nco${WHITE}
+    2. For CentOS/RHEL: ${BGreen}sudo yum install nco${WHITE}
+    3. For Fedora: ${BGreen}sudo dnf install nco${WHITE}
+    4. For openSUSE: ${BGreen}sudo zypper install nco${WHITE}
     \n"
     exit 1
 fi
@@ -773,12 +797,12 @@ if $RUN_GEOGRID; then
 				\n"
 	                        exit 1
         	        else
-                        min_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1`
-	                max_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1`
-        	        min_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1`
-                	max_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1`
+                        min_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1| awk '{print int($1)}'`
+	                max_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1| awk '{print int($1)}'`
+        	        min_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1| awk '{print int($1)}'`
+                	max_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1| awk '{print int($1)}'`
 
-                        	if [ "$min_lon" -lt 30 ] || [ "$max_lon" -gt 120 ] || [ "$min_lat" -lt -15 ] || [ "$max_lat" -gt 45 ]
+                        	if [ "$min_lon" -lt 30 ] || [ "$max_lon" -ge 120 ] || [ "$min_lat" -lt -15 ] || [ "$max_lat" -ge 45 ]
 	        	            then
         	                        echo -e "\n
                 	                FATAL ERROR
@@ -822,12 +846,12 @@ if $RUN_GEOGRID; then
 				\n"
                 	        exit 1
 	                else
-			min_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1`
-	                max_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1`
-        	        min_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1`
-                        max_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1`
+			min_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1| awk '{print int($1)}'`
+	                max_lon=`ncks -H -C -v XLONG_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1| awk '{print int($1)}'`
+        	        min_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| head -n 1| awk '{print int($1)}'`
+                        max_lat=`ncks -H -C -v XLAT_M geo_em.d01.nc | grep -oE '[-]?[0-9]+\.[0-9]+'| awk '{print $1}'|sort -n| tail -n 1| awk '{print int($1)}'`
 
-                        	if [ "$min_lon" -lt 30 ] || [ "$max_lon" -gt 120 ] || [ "$min_lat" -lt -15 ] || [ "$max_lat" -gt 45 ]
+                        	if [ "$min_lon" -lt 30 ] || [ "$max_lon" -ge 120 ] || [ "$min_lat" -lt -15 ] || [ "$max_lat" -ge 45 ]
 	        	            then
         	                        echo -e "\n
                 	                FATAL ERROR
