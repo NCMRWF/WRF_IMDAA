@@ -23,9 +23,9 @@ wps_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WPS-4.3
 wrf_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WRF-4.3
 
 # set false if you do not want to repeat the processes
-SORT_IMDAA=false
-RUN_UNGRIB=false
+SORT_IMDAA=true
 RUN_GEOGRID=true
+RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
 nproc=1 
