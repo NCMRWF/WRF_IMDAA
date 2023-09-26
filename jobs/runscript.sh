@@ -77,9 +77,6 @@
 # Author : Vivekananda Hazra (vhazra@ncmrwf.gov.in)								        |
 # Version : 20-Sep-2023												        |
 #------------------------------------------------------------------------------------------------------------------------
-ulimit -s unlimited
-currdir=`pwd`
-
 SELF=$(realpath ${0})
 export HOMEDIR=${SELF%/jobs*}
 export JOBSDIR=${HOMEDIR}/jobs
@@ -139,6 +136,9 @@ fi
 
 if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
+ulimit -s unlimited
+currdir=${RUNDIR}
+
 
 if [ ! -z ${SITE} ] ; then
 setenvscript="${HOMEDIR}/site/${SITE}/set_env.sh"
