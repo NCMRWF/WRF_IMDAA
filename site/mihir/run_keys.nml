@@ -11,7 +11,7 @@
 STRTDATETIME=20200101 00
 STOPDATETIME=20200101 18
 site=mihir
-RUNDIR=/home/gibies/Build_WRF/test_run_20200101
+RUNDIR=/scratch/gibies/WRF_IMDAA/test_run_20200101
 # here kept all downloaded IMDAA data
 imdaa_data_path=/home/gibies/data/imdaa/20200101
 # static data WPS_GEOG path
@@ -23,9 +23,9 @@ wps_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WPS-4.3
 wrf_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WRF-4.3
 
 # set false if you do not want to repeat the processes
-SORT_IMDAA=true
+SORT_IMDAA=false
+RUN_UNGRIB=false
 RUN_GEOGRID=true
-RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
 nproc=1 

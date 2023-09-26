@@ -759,24 +759,23 @@ if $SORT_IMDAA; then
 	done
 fi
 #---------------------------------------------- geogrid section ------------------------------------------------------
-rm .log_geogrid.out
+export GEOGRID_LOG=${RUNDIR}/log_geogrid.out
+rm ${GEOGRID_LOG}
 sed -i "s|geog_data_path.*|geog_data_path = '$wps_geog_path',|g" namelist.wps
 sed -i "s|opt_output_from_geogrid_path.*|opt_output_from_geogrid_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_geogrid_tbl_path.*|opt_geogrid_tbl_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_output_from_metgrid_path.*|opt_output_from_metgrid_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_metgrid_tbl_path.*|opt_metgrid_tbl_path = '$currdir',|g" namelist.wps
 cat namelist.wps
-exit
 if $RUN_GEOGRID; then
 	echo -e "\n
 	You have opted to run Geogrid.
 
 	So, going for ${BGreen}GEOGRID${NORMAL} run ...
 	\n"
-	rm geo_em.d0* .log_geogrid.out
+	rm geo_em.d0* ${GEOGRID_LOG}
 	sleep 1
-	${RUN_COMMAND3}  > .log_geogrid.out 2>&1
-
+	${RUN_COMMAND3}  > ${GEOGRID_LOG} 2>&1
 	export GEOFILE1=geogrid.log
 	export GEOFILE2=geogrid.log.0000
 	if [ -f "$GEOFILE1" ]; then
@@ -825,7 +824,7 @@ if $RUN_GEOGRID; then
 				
 	                                	Going for ${BGreen}UNGRIB${NORMAL} run ...
         	                        \n"
-                	                rm .log_geogrid.out
+                	                rm ${GEOGRID_LOG}
                         	        break
 	                        fi
 			fi
@@ -874,7 +873,7 @@ if $RUN_GEOGRID; then
 				
 	                                Going for ${BGreen}UNGRIB${NORMAL} run ...
         	                        \n"
-                	                rm .log_geogrid.out
+                	                rm ${GEOGRID_LOG}
                         	        break
 	                        fi
 	                fi
@@ -891,12 +890,13 @@ if $RUN_GEOGRID; then
 		GEOGRID is not completed. 
 		
 		${BGreen}Possible solutions${NORMAL}: 
-			1. Check the .log_geogrid.out file to locate the error source 
+			1. Check the ${GEOGRID_LOG} file to locate the error source 
 		\n"
 		exit 1
 	fi
 fi
 #------------------------------- ungrib section -------------------------------------------------------------------
+
 if $RUN_UNGRIB; then
 	echo -e "\n
 	You have opted to run ungrib.
@@ -907,6 +907,7 @@ if $RUN_UNGRIB; then
 	sed -i 's/fg_name.*/fg_name =/g' namelist.wps
 	for param in ${parameters[@]} 
 	do
+		export UNGRIB_LOG=${RUNDIR}/log_ungrib_${param}.out
 		echo -e "\n Running ungrib for ${param} ..."
 		sed -i "s/prefix.*/prefix = '${param}',/g" namelist.wps
 		sleep 1
@@ -918,11 +919,11 @@ if $RUN_UNGRIB; then
 		rm GRIBFILE.* ${param}:* 
 		${wps_path}/link_grib.csh $currdir/rundata/${param}_*
 	
-		${RUN_COMMAND1}  > .log_ungrib_${param}.out 2>&1
+		${RUN_COMMAND1}  > ${UNGRIB_LOG} 2>&1
 
 		until [[ ( ! -z $ungriblog ) ]]
 			do
-			ungriblog=`cat .log_ungrib_${param}.out |tail -n100 |grep  "Successful completion of ungrib."`
+			ungriblog=`cat ${UNGRIB_LOG} |tail -n100 |grep  "Successful completion of ungrib."`
 			if [[ ( -z $ungriblog ) ]] 
 			then
 				echo -e "\n
@@ -933,7 +934,7 @@ if $RUN_UNGRIB; then
 				${BRed}ungrib for ${param} ${NORMAL}is not finished, exiting ...
 	
 				${BGreen}Possible actions${NORMAL}:
-			                1. Check .log_ungrib_${param}.out file to locate the error source.
+			                1. Check ${UNGRIB_LOG} file to locate the error source.
 					2. If nothing traced, might be due to data inconsistency. Solution is not in your hand. Contact NCMRWF.
 				\n"
 				exit 1
@@ -947,7 +948,8 @@ if $RUN_UNGRIB; then
 	done
 fi
 #------------------------------- metgrid section -------------------------------------------------------------------
-rm .log_metgrid.out
+export METGRID_LOG=${RUNDIR}/log_metgrid.out
+rm ${METGRID_LOG}
 cat > .unsuccess_message << EOF
 #!/bin/bash
 echo -e "\n	
@@ -1005,7 +1007,7 @@ if $all_non_zero; then
 	Proceeding for ${BGreen}METGRID${NORMAL} run ...
 	\n"
 	rm met_em.d0*	
-	${RUN_COMMAND2}  > .log_metgrid.out 2>&1
+	${RUN_COMMAND2}  > ${METGRID_LOG} 2>&1
 	sleep 2
 else
 	echo -e "\n
