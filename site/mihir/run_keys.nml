@@ -18,6 +18,7 @@ imdaa_data_path=/home/gibies/data/imdaa/20200101
 wps_geog_path=/home/gibies/data/WPS_GEOG
 # WPS package installation path
 wps_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WPS-4.3
+#home/gibies/Build_WRF/WPS-4.3_exe
 # WRF package installation path
 wrf_path=/home/apps/SiteSoftwares/WRF_GNU_DMSM/WRF-4.3
 

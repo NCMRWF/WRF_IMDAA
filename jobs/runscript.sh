@@ -476,6 +476,8 @@ else
 	wpsexe1=$wps_path/geogrid.exe
 	wpsexe2=$wps_path/ungrib.exe
 	wpsexe3=$wps_path/metgrid.exe
+echo $wpsexe1 $wpsexe2 $wpsexe3
+
 	if [ -x "$wpsexe1" ] && [ -x "$wpsexe2" ] && [ -x "$wpsexe3" ]; then
   		echo -e "\n
 		${BGreen}geogrid.exe${NORMAL}, ${BGreen}ungrib.exe${NORMAL}, and ${BGreen}metgrid.exe${NORMAL} exist and are executable. 
@@ -694,6 +696,7 @@ else
   exit 1
 fi
 
+set -x
 ln -sf ${wps_path}/*.exe .
 ln -sf ${wps_path}/geogrid/GEOGRID.TBL.ARW GEOGRID.TBL 
 #-------------------------------- sorting imdaa data ---------------------------------------------------
@@ -762,6 +765,8 @@ sed -i "s|opt_output_from_geogrid_path.*|opt_output_from_geogrid_path = '$currdi
 sed -i "s|opt_geogrid_tbl_path.*|opt_geogrid_tbl_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_output_from_metgrid_path.*|opt_output_from_metgrid_path = '$currdir',|g" namelist.wps
 sed -i "s|opt_metgrid_tbl_path.*|opt_metgrid_tbl_path = '$currdir',|g" namelist.wps
+cat namelist.wps
+exit
 if $RUN_GEOGRID; then
 	echo -e "\n
 	You have opted to run Geogrid.
