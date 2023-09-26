@@ -202,6 +202,8 @@ fi
 cp -r ${HOMEDIR}/tables/WRF-Noah/METGRID.TBL_NCUM ${RUNDIR}/METGRID.TBL
 cp -r ${HOMEDIR}/tables/WRF-Noah/Vtable.NCUM ${RUNDIR}/Vtable
 
+ls -lrt ${RUNDIR}/METGRID.TBL ${RUNDIR}/Vtable
+
 echo -e "Selecting serial or parallel run.
 
 	For parallel run type: ${BGreen}yes${NORMAL}

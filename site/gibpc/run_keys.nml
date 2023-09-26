@@ -21,8 +21,8 @@ wps_path=/home/gibies/Build_WRF/WPS-4.5
 wps_geog_path=/home/gibies/data/WPS_GEOG
 
 # set false if you do not want to repeat the processes
-SORT_IMDAA=false
-RUN_GEOGRID=false
+SORT_IMDAA=true
+RUN_GEOGRID=true
 RUN_UNGRIB=true
 
 # number of processors if opt for parallel run
