@@ -150,7 +150,8 @@ if [ ! -d ${RUNDIR} ]; then mkdir -p ${RUNDIR}; fi
 cd ${RUNDIR}
 ulimit -s unlimited
 currdir=${RUNDIR}
-
+export LOGOUTFILE="${RUNDIR}/wrf_imdaa_log"
+exec &> >(tee -a ${LOGOUTFILE} >&2 )
 
 if [ ! -z ${SITE} ] ; then
 setenvscript="${HOMEDIR}/site/${SITE}/set_env.sh"
