@@ -1,0 +1,44 @@
+#----------------------------------------------------------------------------------------------------------------------------------------
+# 											    						|
+#                                                          USER INPUT BEGIN HERE                                       			|
+# 																	|
+#			(1) Fill in YEAR, MONTH, DATE, HOURS, and INTERVAL below as per the Namelist options.				|
+#			(2) Provide only relevant paths in the path options.								|
+#			(3) Provide the number of processors if opting for parallel.							|
+#			(4) Do not change parameter names unless directed by this script.						|
+# 																	|
+#----------------------------------------------------------------------------------------------------------------------------------------
+
+STRTDATETIME=20150101 00
+STOPDATETIME=20150101 18
+site=gibpc
+RUNDIR=/home/workstation11/test/runspace
+# here kept all downloaded IMDAA data
+imdaa_data_path=/home/workstation11/test/downloaded_imdaa_data_path
+# This is where you have installed the WPS package
+wps_path=/home/workstation11/WPS
+# static data WPS_GEOG path
+wps_geog_path=/home/workstation11/test/WPS_GEOG
+
+# set false if you do not want to repeat the processes
+SORT_IMDAA=true
+RUN_GEOGRID=true
+RUN_UNGRIB=true
+
+# number of processors if opt for parallel run
+nproc=1 
+
+#
+max_dom=1
+# Intervels in seconds
+interval_seconds=21600
+
+# IMDAA parameter names. Do not change unless you are getting any instruction after an unsuccessful Metgrid run
+# UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m TSOIL-L1 TSOIL-L2 TSOIL-L3 TSOIL-L4 UGRD-10m VGRD-10m CISOILM-L1 CISOILM-L2 CISOILM-L3 CISOILM-L4 WEASD-sfc 
+parameters= UGRD-prl VGRD-prl TMP-prl TMP-sfc HGT-prl RH-prl RH-2m LAND-sfc PRES-sfc PRMSL-msl RH-2m UGRD-10m VGRD-10m WEASD-sfc 
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+#																	|
+#                         END USER INPUT. ******  DO NOT CHANGE BELOW ******								|
+# 																	|
+#----------------------------------------------------------------------------------------------------------------------------------------
