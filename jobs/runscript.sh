@@ -119,14 +119,26 @@ runkeynml=${NMLDIR}/${RUN_NAME}_keys.nml
 else
 runkeynml=${HOMEDIR}/site/${SITE}/${RUN_NAME}_keys.nml
 fi
+pathkeys="RUNDIR imdaa_data_path wps_geog_path wps_path wrf_path"
 keylist=$(grep -v '^#' ${runkeynml} | tr '=' ' ' | awk '{print $1}')
 
 for key in ${keylist}; do
 	export ${key}="$(grep "${key}" ${runkeynml} | tr '=' ' ' | cut -d " " -f 2- )"
+	if [[ "${pathkeys}" == *"${key}"* ]] ; then
+		export ${key}=$(eval "echo ${!key}")
+	fi
 echo ${key}="${!key}"
 done
 
-########### UPDATE ###################################################################################################
+######################################################################################################################
+##########################    USER WARNING MESSAGES   ################################################################
+######################################################################################################################
+for key in ${pathkeys}; do
+	if [ -z ${!key} ]; then
+		echo "Essential path information ${key} is missing"
+	fi
+done
+
 if [[ -z ${STRTDATETIME} ]]; then
 	echo "STRTDATETIME and STOPDATETIME need to be specified either in namelist ${runkeynml} or through argument"
 	helpdesk
