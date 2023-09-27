@@ -149,6 +149,8 @@ fi
 export wps_namelist=${RUNDIR}/namelist.wps
 cp -r ${NMLDIR}/namelist.wps ${wps_namelist}
 
+export max_dom=$(grep max_dom ${wps_namelist}|tr "," " " | tr "max_dom" " " | tr "=" " ")
+
 fmtstr=""
 for i in $(seq $max_dom) ; do
 	fmtstr="${fmtstr}'%Y-%m-%d_%H:%M:%S'",
@@ -157,6 +159,7 @@ done
 export start_date=$(date -d "${STRTDATETIME}" +${fmtstr})
 export end_date=$(date -d "${STOPDATETIME}" +${fmtstr})
 
+sed -i "s+max_dom.*+ max_dom = ${max_dom},+" ${wps_namelist}
 sed -i "s+start_date.*+ start_date = $(echo ${start_date})+" ${wps_namelist}
 sed -i "s+end_date.*+ end_date   = $(echo ${end_date})+" ${wps_namelist}
 
