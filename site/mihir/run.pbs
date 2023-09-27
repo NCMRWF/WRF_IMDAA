@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -q NCMRWF1
+#PBS -N wrf_imdaa
+#PBS -l select=1:vntype=cray_compute
+#PBS -o /scratch/${USER}/WRF_IMDAA/log_job.out
+#PBS -e /scratch/${USER}/WRF_IMDAA/log_job.err
+
+
+SELF=$(realpath ${0})
+export HOMEDIR=${SELF%/site*}
+export JOBSDIR=${HOMEDIR}/job
+echo ${JOBSDIR}
+${JOBSDIR}/runscript.sh -s mihir
+
+exit

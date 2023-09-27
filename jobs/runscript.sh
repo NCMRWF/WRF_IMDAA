@@ -735,27 +735,27 @@ if $SORT_IMDAA; then
         	        Extracting ${BGreen}$subset${NORMAL} from IMDAA ...
 	                \n"
         	        sleep 1
-	                found_file=$(find "$imdaa_data_path" -type f -name "*_${subset}_*")
+	                found_file=$(find "$imdaa_data_path" -type f -name "*_${subset}_${Start_year}${Start_month}${Start_date}*")
         	        if [ -e "$found_file" ]; then
                 	        echo $rundate
                         	echo $current_date
 	                        if [ "$current_hour" -eq 0 ] || [ "$current_hour" -eq 6 ] || [ "$current_hour" -eq 12 ] || [ "$current_hour" -eq 18 ]
         	                then
-                	                wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${current_date}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${rundate}_${current_hour}.grib2
+                	                wgrib2 ${found_file} -match_fs "=${current_date}" -match_fs "anl" -grib_out $currdir/rundata/${param}_${rundate}_${current_hour}.grib2
                         	elif [ "$current_hour" -gt 0 ] && [ "$current_hour" -lt 6 ]
 	                        then
-        	                        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}00" -match_fs "$(( 10#$current_hour )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
+        	                        wgrib2 ${found_file} -match_fs "=${rundate}00" -match_fs "$(( 10#$current_hour )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
                 	        elif [ "$current_hour" -gt 6 ] && [ "$current_hour" -lt 12 ]
                         	then
                                 	apnd=$(( 10#${current_hour} - 6 ))
 	                                jj=`expr $apnd + 0`
-        	                        wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}06" -match_fs "$jj hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
+        	                        wgrib2 ${found_file} -match_fs "=${rundate}06" -match_fs "$jj hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
                 	        elif [ "$current_hour" -gt 12 ] && [ "$current_hour" -lt 18 ]
                         	then
-                                	wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}12" -match_fs "$(( 10#${current_hour} - 12 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
+                                	wgrib2 ${found_file} -match_fs "=${rundate}12" -match_fs "$(( 10#${current_hour} - 12 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
 	                        elif [ "$current_hour" -gt 18 ]
         	                then
-                	                wgrib2 ${imdaa_data_path}/*_${param}_* -match_fs "=${rundate}18" -match_fs "$(( 10#${current_hour} - 18 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
+                	                wgrib2 ${found_file} -match_fs "=${rundate}18" -match_fs "$(( 10#${current_hour} - 18 )) hour fcst" -set_date ${current_date} -grib_out $currdir/rundata/${param}_${rundate}_$current_hour.grib2
                         	fi
 	                else
         	                echo -e "\n
