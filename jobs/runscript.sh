@@ -149,7 +149,7 @@ fi
 export wps_namelist=${RUNDIR}/namelist.wps
 cp -r ${NMLDIR}/namelist.wps ${wps_namelist}
 
-export max_dom=$(grep max_dom ${wps_namelist}|tr "," " " | tr "max_dom" " " | tr "=" " ")
+export max_dom=$(grep max_dom ${wps_namelist}|tr "," " " | tr "max_dom" " " | tr "=" " " | xargs)
 
 fmtstr=""
 for i in $(seq $max_dom) ; do
