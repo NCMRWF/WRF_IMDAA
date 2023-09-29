@@ -13,7 +13,7 @@ STOPDATETIME=20200101 18
 site=mihir
 RUNDIR=/scratch/${USER}/WRF_IMDAA/test_run_20200101
 # here kept all downloaded IMDAA data
-imdaa_data_path=/home/${USER}/data/imdaa
+imdaa_data_path=/scratch/${USER}/data/imdaa
 # static data WPS_GEOG path
 wps_geog_path=/home/${USER}/data/WPS_GEOG
 # WPS package installation path
